@@ -43,13 +43,14 @@ public final class ShopManager {
             return PurchaseResult.ITEM_NOT_FOUND;
         }
 
-        if (GoldManager.getGold(player) < price) {
+        if (!GoldManager.hasEnoughGold(player, price)) {
             return PurchaseResult.NOT_ENOUGH_GOLD;
         }
 
         ItemStack stack = new ItemStack(item);
 
-        if (!player.getInventory().canAdd(stack)) {
+        // Перевіряємо, чи є вільне місце або відповідний стек.
+        if (!player.getInventory().hasRemainingSpaceForItem(stack)) {
             return PurchaseResult.INVENTORY_FULL;
         }
 
@@ -70,23 +71,13 @@ public final class ShopManager {
 
     private static Item getMinecraftItem(String itemId) {
         return switch (itemId) {
-            case "greed_sword" ->
-                    ModItems.GREED_SWORD.get();
+            case "greed_sword" -> ModItems.GREED_SWORD.get();
+            case "iron_sword" -> Items.IRON_SWORD;
+            case "bread" -> Items.BREAD;
+            case "golden_apple" -> Items.GOLDEN_APPLE;
 
-            case "iron_sword" ->
-                    Items.IRON_SWORD;
-
-            case "bread" ->
-                    Items.BREAD;
-
-            case "golden_apple" ->
-                    Items.GOLDEN_APPLE;
-
-            case "healing_potion" ->
-                    Items.POTION;
-
-            case "strength_potion" ->
-                    Items.POTION;
+            // Тимчасово звичайні зілля без спеціальних ефектів.
+            case "healing_potion", "strength_potion" -> Items.POTION;
 
             default -> null;
         };
