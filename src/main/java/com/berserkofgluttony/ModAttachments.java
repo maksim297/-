@@ -8,7 +8,8 @@ import java.util.function.Supplier;
 
 public final class ModAttachments {
 
-    private ModAttachments() {}
+    private ModAttachments() {
+    }
 
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
             DeferredRegister.create(
@@ -19,7 +20,7 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<RpgStats>> RPG_STATS =
             ATTACHMENT_TYPES.register(
                     "rpg_stats",
-                    () -> AttachmentType.builder(
+                    () -> AttachmentType.<RpgStats>builder(
                                     (Supplier<RpgStats>) RpgStats::new
                             )
                             .serialize(RpgStats.CODEC)
@@ -30,7 +31,7 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<PlayerGold>> PLAYER_GOLD =
             ATTACHMENT_TYPES.register(
                     "player_gold",
-                    () -> AttachmentType.builder(
+                    () -> AttachmentType.<PlayerGold>builder(
                                     (Supplier<PlayerGold>) PlayerGold::new
                             )
                             .serialize(PlayerGold.CODEC)
