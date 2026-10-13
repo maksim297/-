@@ -7,7 +7,8 @@ import net.minecraft.world.item.Items;
 
 public final class ShopManager {
 
-    private ShopManager() {}
+    private ShopManager() {
+    }
 
     public enum PurchaseResult {
         SUCCESS,
@@ -47,15 +48,7 @@ public final class ShopManager {
             return PurchaseResult.NOT_ENOUGH_GOLD;
         }
 
-        ItemStack stack = new ItemStack(item);
-
-        // Перевіряємо, чи можна об'єднати товар з наявними предметами
-        // або чи є вільне місце в інвентарі.
-        if (!player.getInventory().hasRemainingSpaceForItem(
-                ItemStack.EMPTY, stack
-        )) {
-            return PurchaseResult.INVENTORY_FULL;
-        }
+        ItemStack stack = new ItemStack(item, 1);
 
         if (!GoldManager.spendGold(player, price)) {
             return PurchaseResult.NOT_ENOUGH_GOLD;
@@ -63,12 +56,17 @@ public final class ShopManager {
 
         boolean added = player.getInventory().add(stack);
 
-        if (!added) {
+        if (!added || !stack.isEmpty()) {
+            if (!stack.isEmpty()) {
+                player.drop(stack, false);
+            }
+
             GoldManager.addGold(player, price);
             return PurchaseResult.INVENTORY_FULL;
         }
 
         player.getInventory().setChanged();
+
         return PurchaseResult.SUCCESS;
     }
 
