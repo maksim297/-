@@ -49,8 +49,11 @@ public final class ShopManager {
 
         ItemStack stack = new ItemStack(item);
 
-        // Перевіряємо, чи є вільне місце або відповідний стек.
-        if (!player.getInventory().hasRemainingSpaceForItem(stack)) {
+        // Перевіряємо, чи можна об'єднати товар з наявними предметами
+        // або чи є вільне місце в інвентарі.
+        if (!player.getInventory().hasRemainingSpaceForItem(
+                ItemStack.EMPTY, stack
+        )) {
             return PurchaseResult.INVENTORY_FULL;
         }
 
@@ -75,10 +78,7 @@ public final class ShopManager {
             case "iron_sword" -> Items.IRON_SWORD;
             case "bread" -> Items.BREAD;
             case "golden_apple" -> Items.GOLDEN_APPLE;
-
-            // Тимчасово звичайні зілля без спеціальних ефектів.
             case "healing_potion", "strength_potion" -> Items.POTION;
-
             default -> null;
         };
     }
