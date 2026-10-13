@@ -5,7 +5,7 @@ public enum ShopCategory {
     WEAPONS("Зброя"),
     FOOD("Їжа"),
     POTIONS("Зілля");
-
+    
     private final String displayName;
 
     ShopCategory(String displayName) {
