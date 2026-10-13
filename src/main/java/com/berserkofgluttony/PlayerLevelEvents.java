@@ -28,17 +28,8 @@ public final class PlayerLevelEvents {
             return;
         }
 
-        RpgStats stats = player.getData(
-                ModAttachments.RPG_STATS.get()
-        );
+        int points = levelsGained * RpgStats.POINTS_PER_LEVEL;
 
-        stats.addAvailablePoints(
-                levelsGained * RpgStats.POINTS_PER_LEVEL
-        );
-
-        player.setData(
-                ModAttachments.RPG_STATS.get(),
-                stats
-        );
+        StatPoints.awardPoints(player, points);
     }
 }
