@@ -1,4 +1,3 @@
-
 package com.berserkofgluttony;
 
 import net.neoforged.bus.api.IEventBus;
