@@ -13,10 +13,20 @@ public class StatusScreen extends Screen {
     private final Player player;
     private RpgStats stats;
 
-    private static final int PANEL_WIDTH = 320;
-    private static final int PANEL_HEIGHT = 350;
+    private static final int PANEL_WIDTH = 340;
+    private static final int PANEL_HEIGHT = 360;
 
-    private boolean shopOpen = false;
+    private enum Page {
+        STATUS,
+        SHOP,
+        GROUP,
+        QUESTS,
+        CRAFTING,
+        REWARDS,
+        SKILLS
+    }
+
+    private Page currentPage = Page.STATUS;
     private ShopCategory selectedCategory =
             ShopCategory.WEAPONS;
 
@@ -42,99 +52,40 @@ public class StatusScreen extends Screen {
         int left = (width - PANEL_WIDTH) / 2;
         int top = (height - PANEL_HEIGHT) / 2;
 
-        addRenderableWidget(
-                Button.builder(
-                        Component.literal("СТАТУС"),
-                        button -> {
-                            shopOpen = false;
-                            rebuildWidgets();
-                        }
-                ).bounds(
-                        left + 12, top + 12, 144, 22
-                ).build()
-        );
+        addTab("Статус", Page.STATUS,
+                left + 10, top + 10, 100);
+        addTab("Магазин", Page.SHOP,
+                left + 120, top + 10, 100);
+        addTab("Група", Page.GROUP,
+                left + 230, top + 10, 100);
 
-        addRenderableWidget(
-                Button.builder(
-                        Component.literal("МАГАЗИН"),
-                        button -> {
-                            shopOpen = true;
-                            rebuildWidgets();
-                        }
-                ).bounds(
-                        left + 164, top + 12, 144, 22
-                ).build()
-        );
+        addTab("Квести", Page.QUESTS,
+                left + 10, top + 36, 100);
+        addTab("Ремесло", Page.CRAFTING,
+                left + 120, top + 36, 100);
+        addTab("Нагороди", Page.REWARDS,
+                left + 230, top + 36, 100);
 
-        if (shopOpen) {
-            addCategoryButton(
-                    ShopCategory.WEAPONS,
-                    left + 12, top + 48
-            );
-            addCategoryButton(
-                    ShopCategory.FOOD,
-                    left + 116, top + 48
-            );
-            addCategoryButton(
-                    ShopCategory.POTIONS,
-                    left + 220, top + 48
-            );
+        addTab("Навички", Page.SKILLS,
+                left + 10, top + 62, 100);
 
-            int itemY = top + 86;
+        if (currentPage == Page.STATUS) {
+            int buttonX = left + 290;
+            int firstY = top + 174;
+            int gap = 27;
 
-            for (ShopItem item :
-                    ShopRegistry.getItems(selectedCategory)) {
-
-                String itemId = item.id();
-
-                addRenderableWidget(
-                        Button.builder(
-                                Component.literal(
-                                        item.name()
-                                                + " | "
-                                                + item.price()
-                                                + " золота"
-                                ),
-                                button ->
-                                        ModNetwork.purchaseItem(itemId)
-                        ).bounds(
-                                left + 12, itemY, 296, 22
-                        ).build()
-                );
-
-                itemY += 27;
-
-                if (itemY > top + 270) {
-                    break;
-                }
-            }
-        } else {
-            int buttonX = left + 274;
-            int firstY = top + 160;
-            int rowGap = 28;
-
-            addStatButton(
-                    "strength", buttonX, firstY
-            );
-            addStatButton(
-                    "endurance", buttonX, firstY + rowGap
-            );
-            addStatButton(
-                    "perception", buttonX, firstY + rowGap * 2
-            );
-            addStatButton(
-                    "agility", buttonX, firstY + rowGap * 3
-            );
-            addStatButton(
-                    "intelligence", buttonX, firstY + rowGap * 4
-            );
+            addStatButton("strength", buttonX, firstY);
+            addStatButton("endurance", buttonX, firstY + gap);
+            addStatButton("perception", buttonX, firstY + gap * 2);
+            addStatButton("agility", buttonX, firstY + gap * 3);
+            addStatButton("intelligence", buttonX, firstY + gap * 4);
 
             addRenderableWidget(
                     Button.builder(
                             Component.literal(
                                     stats.isAutoPointsAllocated()
-                                            ? "АВТОРОЗПОДІЛ: УВІМК."
-                                            : "АВТОРОЗПОДІЛ: ВИМК."
+                                            ? "Авто: УВІМК."
+                                            : "Авто: ВИМК."
                             ),
                             button -> {
                                 boolean enabled =
@@ -143,15 +94,74 @@ public class StatusScreen extends Screen {
                                 ModNetwork.setAutomaticDistribution(
                                         enabled
                                 );
-
                                 stats.setAutoPointsAllocated(enabled);
                                 rebuildWidgets();
                             }
                     ).bounds(
-                            left + 12, top + 315, 200, 22
+                            left + 12, top + 328, 150, 20
                     ).build()
             );
         }
+
+        if (currentPage == Page.SHOP) {
+            addCategoryButton(
+                    ShopCategory.WEAPONS,
+                    left + 12, top + 105
+            );
+            addCategoryButton(
+                    ShopCategory.FOOD,
+                    left + 122, top + 105
+            );
+            addCategoryButton(
+                    ShopCategory.POTIONS,
+                    left + 232, top + 105
+            );
+
+            int itemY = top + 140;
+
+            for (ShopItem item :
+                    ShopRegistry.getItems(selectedCategory)) {
+                String itemId = item.id();
+
+                addRenderableWidget(
+                        Button.builder(
+                                Component.literal(
+                                        item.name() + " — "
+                                                + item.price()
+                                                + " золота"
+                                ),
+                                button ->
+                                        ModNetwork.purchaseItem(itemId)
+                        ).bounds(
+                                left + 12, itemY, 316, 22
+                        ).build()
+                );
+
+                itemY += 27;
+
+                if (itemY > top + 275) {
+                    break;
+                }
+            }
+        }
+    }
+
+    private void addTab(
+            String title,
+            Page page,
+            int x,
+            int y,
+            int buttonWidth
+    ) {
+        addRenderableWidget(
+                Button.builder(
+                        Component.literal(title),
+                        button -> {
+                            currentPage = page;
+                            rebuildWidgets();
+                        }
+                ).bounds(x, y, buttonWidth, 20).build()
+        );
     }
 
     private void addCategoryButton(
@@ -161,14 +171,12 @@ public class StatusScreen extends Screen {
     ) {
         addRenderableWidget(
                 Button.builder(
-                        Component.literal(
-                                category.getDisplayName()
-                        ),
+                        Component.literal(category.getDisplayName()),
                         button -> {
                             selectedCategory = category;
                             rebuildWidgets();
                         }
-                ).bounds(x, y, 88, 22).build()
+                ).bounds(x, y, 96, 20).build()
         );
     }
 
@@ -201,10 +209,7 @@ public class StatusScreen extends Screen {
             int mouseY,
             float partialTick
     ) {
-        renderBackground(
-                graphics, mouseX, mouseY, partialTick
-        );
-
+        renderBackground(graphics, mouseX, mouseY, partialTick);
         refreshStats();
 
         int left = (width - PANEL_WIDTH) / 2;
@@ -230,20 +235,59 @@ public class StatusScreen extends Screen {
         );
 
         graphics.fill(
-                left + 8, top + 40,
-                left + PANEL_WIDTH - 8, top + 42,
+                left + 8, top + 91,
+                left + PANEL_WIDTH - 8, top + 93,
                 GOLD
         );
 
-        if (shopOpen) {
-            renderShop(graphics, left, top, x);
-        } else {
-            renderStatus(graphics, left, top, x);
+        graphics.drawCenteredString(
+                font,
+                Component.literal("СТАТУС ПЕРСОНАЖА")
+                        .withStyle(ChatFormatting.BOLD,
+                                ChatFormatting.GOLD),
+                width / 2,
+                top + 80,
+                GOLD
+        );
+
+        switch (currentPage) {
+            case STATUS ->
+                    renderStatus(graphics, left, top, x);
+            case SHOP ->
+                    renderShop(graphics, left, top, x);
+            case GROUP ->
+                    renderInfoPage(
+                            graphics, left, top,
+                            "ГРУПА",
+                            "Система груп буде додана окремо."
+                    );
+            case QUESTS ->
+                    renderInfoPage(
+                            graphics, left, top,
+                            "КВЕСТИ",
+                            "Система завдань буде додана окремо."
+                    );
+            case CRAFTING ->
+                    renderInfoPage(
+                            graphics, left, top,
+                            "РЕМЕСЛО",
+                            "Рецепти створення будуть додані окремо."
+                    );
+            case REWARDS ->
+                    renderInfoPage(
+                            graphics, left, top,
+                            "НАГОРОДИ",
+                            "Система нагород буде додана окремо."
+                    );
+            case SKILLS ->
+                    renderInfoPage(
+                            graphics, left, top,
+                            "НАВИЧКИ",
+                            "Навички Берсерка будуть додані окремо."
+                    );
         }
 
-        super.render(
-                graphics, mouseX, mouseY, partialTick
-        );
+        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     private void renderStatus(
@@ -252,187 +296,88 @@ public class StatusScreen extends Screen {
             int top,
             int x
     ) {
-        graphics.drawCenteredString(
+        graphics.drawString(
                 font,
-                Component.literal("СТАТУС ПЕРСОНАЖА")
-                        .withStyle(
-                                ChatFormatting.BOLD,
-                                ChatFormatting.GOLD
-                        ),
-                width / 2,
-                top + 25,
-                GOLD
+                Component.literal("Ім'я: "
+                        + player.getName().getString()),
+                x, top + 103, WHITE
         );
 
         graphics.drawString(
                 font,
-                Component.literal(
-                        player.getName().getString()
-                ),
-                x,
-                top + 53,
-                WHITE
-        );
-
-        graphics.drawString(
-                font,
-                Component.literal("КЛАС: БЕРСЕРК")
+                Component.literal("Звання: Берсерк")
                         .withStyle(ChatFormatting.RED),
-                x + 150,
-                top + 53,
-                RED
-        );
-
-        graphics.fill(
-                x, top + 70,
-                left + PANEL_WIDTH - 16, top + 71,
-                0xFF51412C
+                x + 170, top + 103, RED
         );
 
         graphics.drawString(
                 font,
-                Component.literal("ЗДОРОВ'Я"),
-                x,
-                top + 81,
-                RED
+                Component.literal("Рівень: "
+                        + player.experienceLevel),
+                x, top + 120, WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal("Досвід: "
+                        + Math.round(
+                                player.experienceProgress * 100
+                        ) + "%"),
+                x + 170, top + 120, GREEN
         );
 
         graphics.drawString(
                 font,
                 Component.literal(String.format(
                         java.util.Locale.ROOT,
-                        "%.1f / %.1f",
+                        "Здоров'я: %.1f / %.1f",
                         player.getHealth(),
                         player.getMaxHealth()
                 )),
-                x + 100,
-                top + 81,
-                WHITE
-        );
-
-        float maxHealth = Math.max(
-                1.0F, player.getMaxHealth()
-        );
-
-        int healthWidth = (int) (
-                170 * Math.min(
-                        1.0F,
-                        player.getHealth() / maxHealth
-                )
-        );
-
-        graphics.fill(
-                x, top + 95,
-                x + 170, top + 101,
-                0xFF49272D
-        );
-
-        graphics.fill(
-                x, top + 95,
-                x + healthWidth, top + 101,
-                RED
+                x, top + 137, RED
         );
 
         graphics.drawString(
                 font,
-                Component.literal(
-                        "Броня: " + player.getArmorValue()
-                ),
-                x + 190,
-                top + 81,
-                0xFFB9D9FF
-        );
-
-        graphics.drawString(
-                font,
-                Component.literal(
-                        "Рівень: " + player.experienceLevel
-                ),
-                x,
-                top + 111,
-                WHITE
-        );
-
-        graphics.drawString(
-                font,
-                Component.literal(
-                        "Досвід: "
-                                + Math.round(
-                                        player.experienceProgress * 100
-                                )
-                                + "%"
-                ),
-                x + 120,
-                top + 111,
-                GREEN
-        );
-
-        graphics.fill(
-                x, top + 130,
-                left + PANEL_WIDTH - 16, top + 131,
-                0xFF51412C
+                Component.literal("Броня: "
+                        + player.getArmorValue()),
+                x + 170, top + 137, BLUE
         );
 
         graphics.drawString(
                 font,
                 Component.literal("ХАРАКТЕРИСТИКИ")
                         .withStyle(ChatFormatting.GOLD),
-                x,
-                top + 138,
-                GOLD
+                x, top + 157, GOLD
         );
 
-        int rowStart = top + 160;
-        int gap = 28;
+        int y = top + 177;
+        int gap = 27;
 
-        drawStat(
-                graphics, "Сила",
-                stats.getStrength(),
-                x, rowStart, RED
-        );
-
-        drawStat(
-                graphics, "Витривалість",
-                stats.getEndurance(),
-                x, rowStart + gap, GREEN
-        );
-
-        drawStat(
-                graphics, "Сприйняття",
-                stats.getPerception(),
-                x, rowStart + gap * 2, BLUE
-        );
-
-        drawStat(
-                graphics, "Спритність",
-                stats.getAgility(),
-                x, rowStart + gap * 3, YELLOW
-        );
-
-        drawStat(
-                graphics, "Інтелект",
-                stats.getIntelligence(),
-                x, rowStart + gap * 4, PURPLE
-        );
+        drawStat(graphics, "Сила",
+                stats.getStrength(), x, y, RED);
+        drawStat(graphics, "Витривалість",
+                stats.getEndurance(), x, y + gap, GREEN);
+        drawStat(graphics, "Сприйняття",
+                stats.getPerception(), x, y + gap * 2, BLUE);
+        drawStat(graphics, "Спритність",
+                stats.getAgility(), x, y + gap * 3, YELLOW);
+        drawStat(graphics, "Інтелект",
+                stats.getIntelligence(), x, y + gap * 4, PURPLE);
 
         graphics.drawString(
                 font,
-                Component.literal(
-                        "Вільні очки: "
-                                + stats.getAvailablePoints()
-                ).withStyle(ChatFormatting.GREEN),
-                x + 150,
-                rowStart,
-                GREEN
+                Component.literal("Вільні очки: "
+                        + stats.getAvailablePoints())
+                        .withStyle(ChatFormatting.GREEN),
+                x + 150, top + 177, GREEN
         );
 
         graphics.drawString(
                 font,
                 Component.literal("Навичка: Поглинання")
                         .withStyle(ChatFormatting.LIGHT_PURPLE),
-                x + 150,
-                rowStart + gap,
-                0xFFD5A6FF
+                x + 150, top + 204, PURPLE
         );
     }
 
@@ -447,30 +392,25 @@ public class StatusScreen extends Screen {
         graphics.drawString(
                 font,
                 Component.literal(name),
-                x,
-                y,
-                WHITE
+                x, y, WHITE
         );
 
         graphics.drawString(
                 font,
                 Component.literal(String.valueOf(value))
                         .withStyle(ChatFormatting.BOLD),
-                x + 130,
-                y,
-                color
+                x + 112, y, color
         );
 
-        int barX = x + 158;
+        int barX = x + 145;
         int barY = y + 2;
-        int barWidth = 88;
+        int barWidth = 90;
         int barHeight = 7;
 
-        int safeValue = Math.max(0, value);
         int filledWidth = (int) (
                 barWidth * Math.min(
                         1.0,
-                        safeValue / 100.0
+                        Math.max(0, value) / 100.0
                 )
         );
 
@@ -501,33 +441,46 @@ public class StatusScreen extends Screen {
             int top,
             int x
     ) {
-        graphics.drawCenteredString(
-                font,
-                Component.literal("МАГАЗИН")
-                        .withStyle(ChatFormatting.GOLD),
-                width / 2,
-                top + 76,
-                GOLD
-        );
-
         graphics.drawString(
                 font,
                 Component.literal(
                         "Обери предмет для купівлі"
-                ).withStyle(ChatFormatting.GRAY),
-                x + 4,
-                top + 292,
-                MUTED
+                ),
+                x, top + 285, WHITE
         );
 
         graphics.drawString(
                 font,
                 Component.literal(
                         "Баланс золота буде синхронізовано окремо."
-                ),
-                x + 4,
-                top + 306,
+                ).withStyle(ChatFormatting.GOLD),
+                x, top + 306, GOLD
+        );
+    }
+
+    private void renderInfoPage(
+            GuiGraphics graphics,
+            int left,
+            int top,
+            String title,
+            String message
+    ) {
+        graphics.drawCenteredString(
+                font,
+                Component.literal(title)
+                        .withStyle(ChatFormatting.GOLD),
+                width / 2,
+                top + 125,
                 GOLD
+        );
+
+        graphics.drawCenteredString(
+                font,
+                Component.literal(message)
+                        .withStyle(ChatFormatting.GRAY),
+                width / 2,
+                top + 155,
+                MUTED
         );
     }
 
@@ -536,3 +489,4 @@ public class StatusScreen extends Screen {
         return false;
     }
 }
+                                 
