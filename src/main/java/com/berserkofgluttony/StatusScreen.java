@@ -6,18 +6,24 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
 
 public class StatusScreen extends Screen {
 
     private final Player player;
     private RpgStats stats;
 
-    private static final int PANEL_WIDTH = 300;
-    private static final int PANEL_HEIGHT = 330;
+    private static final int PANEL_WIDTH = 320;
+    private static final int PANEL_HEIGHT = 350;
 
     private boolean shopOpen = false;
-    private ShopCategory selectedCategory = ShopCategory.WEAPONS;
+    private ShopCategory selectedCategory =
+            ShopCategory.WEAPONS;
+
+    private static final int GOLD = 0xFFFFD45A;
+    private static final int WHITE = 0xFFF2F2F2;
+    private static final int RED = 0xFFFF5555;
+    private static final int GREEN = 0xFF70FF9A;
+    private static final int MUTED = 0xFFB8B8C8;
 
     public StatusScreen(Player player) {
         super(Component.literal("СТАТУС ПЕРСОНАЖА"));
@@ -39,7 +45,7 @@ public class StatusScreen extends Screen {
                             shopOpen = false;
                             rebuildWidgets();
                         }
-                ).bounds(left + 10, top + 10, 135, 20).build()
+                ).bounds(left + 12, top + 12, 144, 22).build()
         );
 
         addRenderableWidget(
@@ -49,74 +55,77 @@ public class StatusScreen extends Screen {
                             shopOpen = true;
                             rebuildWidgets();
                         }
-                ).bounds(left + 155, top + 10, 135, 20).build()
+                ).bounds(left + 164, top + 12, 144, 22).build()
         );
 
-        if (!shopOpen) {
-            int buttonX = left + 255;
-            int y = top + 105;
-
-            addStatButton("strength", buttonX, y);
-            addStatButton("endurance", buttonX, y + 25);
-            addStatButton("perception", buttonX, y + 50);
-            addStatButton("agility", buttonX, y + 75);
-            addStatButton("intelligence", buttonX, y + 100);
-
-            addRenderableWidget(
-                    Button.builder(
-                            Component.literal(
-                                    stats.isAutoPointsAllocated()
-                                            ? "Авто: УВІМК."
-                                            : "Авто: ВИМК."
-                            ),
-                            button -> {
-                                boolean enabled =
-                                        !stats.isAutoPointsAllocated();
-
-                                ModNetwork.setAutomaticDistribution(enabled);
-                                stats.setAutoPointsAllocated(enabled);
-                                rebuildWidgets();
-                            }
-                    ).bounds(left + 10, top + 300, 130, 20).build()
-            );
-        } else {
-            int categoryY = top + 42;
-
+        if (shopOpen) {
             addCategoryButton(
-                    ShopCategory.WEAPONS, left + 10, categoryY
+                    ShopCategory.WEAPONS, left + 12, top + 48
             );
             addCategoryButton(
-                    ShopCategory.FOOD, left + 108, categoryY
+                    ShopCategory.FOOD, left + 116, top + 48
             );
             addCategoryButton(
-                    ShopCategory.POTIONS, left + 206, categoryY
+                    ShopCategory.POTIONS, left + 220, top + 48
             );
 
-            int itemY = top + 78;
+            int itemY = top + 86;
 
             for (ShopItem item :
                     ShopRegistry.getItems(selectedCategory)) {
-
                 String itemId = item.id();
 
                 addRenderableWidget(
                         Button.builder(
                                 Component.literal(
-                                        item.name()
-                                                + " — "
+                                        item.name() + "  |  "
                                                 + item.price()
                                                 + " золота"
                                 ),
-                                button -> purchaseItem(itemId)
-                        ).bounds(left + 10, itemY, 280, 20).build()
+                                button ->
+                                        ModNetwork.purchaseItem(itemId)
+                        ).bounds(
+                                left + 12, itemY, 296, 22
+                        ).build()
                 );
 
-                itemY += 25;
+                itemY += 27;
 
-                if (itemY > top + 275) {
+                if (itemY > top + 270) {
                     break;
                 }
             }
+        } else {
+            int buttonX = left + 274;
+            int y = top + 150;
+
+            addStatButton("strength", buttonX, y);
+            addStatButton("endurance", buttonX, y + 28);
+            addStatButton("perception", buttonX, y + 56);
+            addStatButton("agility", buttonX, y + 84);
+            addStatButton("intelligence", buttonX, y + 112);
+
+            addRenderableWidget(
+                    Button.builder(
+                            Component.literal(
+                                    stats.isAutoPointsAllocated()
+                                            ? "АВТОРОЗПОДІЛ: УВІМК."
+                                            : "АВТОРОЗПОДІЛ: ВИМК."
+                            ),
+                            button -> {
+                                boolean enabled =
+                                        !stats.isAutoPointsAllocated();
+
+                                ModNetwork.setAutomaticDistribution(
+                                        enabled
+                                );
+                                stats.setAutoPointsAllocated(enabled);
+                                rebuildWidgets();
+                            }
+                    ).bounds(
+                            left + 12, top + 315, 200, 22
+                    ).build()
+            );
         }
     }
 
@@ -132,17 +141,7 @@ public class StatusScreen extends Screen {
                             selectedCategory = category;
                             rebuildWidgets();
                         }
-                ).bounds(x, y, 88, 20).build()
-        );
-    }
-
-    private void purchaseItem(String itemId) {
-        ModNetwork.purchaseItem(itemId);
-    }
-
-    private void refreshStats() {
-        stats = player.getData(
-                ModAttachments.RPG_STATS.get()
+                ).bounds(x, y, 88, 22).build()
         );
     }
 
@@ -158,7 +157,13 @@ public class StatusScreen extends Screen {
                             ModNetwork.spendPoint(statName);
                             button.active = false;
                         }
-                ).bounds(x, y, 25, 20).build()
+                ).bounds(x, y, 24, 20).build()
+        );
+    }
+
+    private void refreshStats() {
+        stats = player.getData(
+                ModAttachments.RPG_STATS.get()
         );
     }
 
@@ -169,33 +174,39 @@ public class StatusScreen extends Screen {
             int mouseY,
             float partialTick
     ) {
-        renderBackground(
-                graphics,
-                mouseX,
-                mouseY,
-                partialTick
-        );
-
+        renderBackground(graphics, mouseX, mouseY, partialTick);
         refreshStats();
 
         int left = (width - PANEL_WIDTH) / 2;
         int top = (height - PANEL_HEIGHT) / 2;
-        int x = left + 10;
+        int x = left + 16;
 
+        // Темна панель
         graphics.fill(
-                left,
-                top,
-                left + PANEL_WIDTH,
-                top + PANEL_HEIGHT,
-                0xEE17191F
+                left, top,
+                left + PANEL_WIDTH, top + PANEL_HEIGHT,
+                0xF0181820
         );
 
+        // Золота зовнішня рамка
         graphics.renderOutline(
-                left,
-                top,
-                PANEL_WIDTH,
-                PANEL_HEIGHT,
-                0xFFB58A52
+                left, top,
+                PANEL_WIDTH, PANEL_HEIGHT,
+                0xFFD2A64C
+        );
+
+        // Внутрішня рамка
+        graphics.renderOutline(
+                left + 4, top + 4,
+                PANEL_WIDTH - 8, PANEL_HEIGHT - 8,
+                0xFF59452C
+        );
+
+        // Верхня декоративна смуга
+        graphics.fill(
+                left + 8, top + 40,
+                left + PANEL_WIDTH - 8, top + 42,
+                GOLD
         );
 
         if (shopOpen) {
@@ -204,75 +215,118 @@ public class StatusScreen extends Screen {
                     Component.literal("МАГАЗИН")
                             .withStyle(ChatFormatting.GOLD),
                     width / 2,
-                    top + 35,
-                    0xFFFFFFFF
+                    top + 76,
+                    GOLD
             );
-
-            int gold = 0;
-
-            if (player instanceof ServerPlayer serverPlayer) {
-                gold = GoldManager.getGold(serverPlayer);
-            }
 
             graphics.drawString(
                     font,
                     Component.literal(
-                            "Всього золота: " + gold
-                    ).withStyle(ChatFormatting.GOLD),
-                    x + 5,
-                    top + 290,
-                    0xFFFFD700
+                            "Обери предмет для купівлі"
+                    ).withStyle(ChatFormatting.GRAY),
+                    x + 4,
+                    top + 292,
+                    MUTED
+            );
+
+            // Баланс золота синхронізуємо окремим кроком.
+            graphics.drawString(
+                    font,
+                    Component.literal(
+                            "Золото: перевір баланс у чаті/на сервері"
+                    ),
+                    x + 4,
+                    top + 306,
+                    GOLD
             );
         } else {
             graphics.drawCenteredString(
                     font,
                     Component.literal("СТАТУС ПЕРСОНАЖА")
-                            .withStyle(ChatFormatting.GOLD),
+                            .withStyle(
+                                    ChatFormatting.BOLD,
+                                    ChatFormatting.GOLD
+                            ),
                     width / 2,
-                    top + 35,
-                    0xFFFFFFFF
+                    top + 25,
+                    GOLD
             );
-
-            int y = top + 60;
 
             graphics.drawString(
                     font,
                     Component.literal(
-                            "Ім'я: " + player.getName().getString()
-                    ),
+                            player.getName().getString()
+                    ).withStyle(ChatFormatting.WHITE),
                     x,
-                    y,
-                    0xFFFFFFFF
+                    top + 54,
+                    WHITE
             );
 
-            y += 15;
+            graphics.drawString(
+                    font,
+                    Component.literal("КЛАС: БЕРСЕРК")
+                            .withStyle(ChatFormatting.RED),
+                    x + 150,
+                    top + 54,
+                    RED
+            );
+
+            graphics.fill(
+                    x, top + 70,
+                    left + PANEL_WIDTH - 16, top + 71,
+                    0xFF51412C
+            );
+
+            graphics.drawString(
+                    font,
+                    Component.literal("ЗДОРОВ'Я"),
+                    x,
+                    top + 82,
+                    RED
+            );
 
             graphics.drawString(
                     font,
                     Component.literal(String.format(
                             java.util.Locale.ROOT,
-                            "Здоров'я: %.1f / %.1f",
+                            "%.1f / %.1f",
                             player.getHealth(),
                             player.getMaxHealth()
                     )),
-                    x,
-                    y,
-                    0xFFFF7777
+                    x + 100,
+                    top + 82,
+                    WHITE
             );
 
-            y += 15;
+            float maxHealth = Math.max(
+                    1.0F, player.getMaxHealth()
+            );
+            int healthWidth = (int) (
+                    170 * Math.min(
+                            1.0F, player.getHealth() / maxHealth
+                    )
+            );
+
+            graphics.fill(
+                    x, top + 96,
+                    x + 170, top + 102,
+                    0xFF49272D
+            );
+            graphics.fill(
+                    x, top + 96,
+                    x + healthWidth, top + 102,
+                    RED
+            );
 
             graphics.drawString(
                     font,
                     Component.literal(
                             "Броня: " + player.getArmorValue()
                     ),
-                    x,
-                    y,
-                    0xFFCCCCCC
+                    x + 190,
+                    top + 82,
+                    0xFFB9D9FF
             );
-
-            y += 15;
 
             graphics.drawString(
                     font,
@@ -280,95 +334,59 @@ public class StatusScreen extends Screen {
                             "Рівень: " + player.experienceLevel
                     ),
                     x,
-                    y,
-                    0xFFFFFFFF
+                    top + 113,
+                    WHITE
             );
-
-            y += 15;
 
             graphics.drawString(
                     font,
                     Component.literal(
                             "Досвід: "
                                     + Math.round(
-                                            player.experienceProgress * 100
+                                            player.experienceProgress
+                                                    * 100
                                     )
                                     + "%"
                     ),
-                    x,
-                    y,
-                    0xFF80FF80
+                    x + 120,
+                    top + 113,
+                    GREEN
             );
 
-            y += 20;
+            graphics.fill(
+                    x, top + 132,
+                    left + PANEL_WIDTH - 16, top + 133,
+                    0xFF51412C
+            );
 
             graphics.drawString(
                     font,
                     Component.literal("ХАРАКТЕРИСТИКИ")
                             .withStyle(ChatFormatting.GOLD),
                     x,
-                    y,
-                    0xFFFFD080
+                    top + 140,
+                    GOLD
             );
 
-            y += 17;
-
-            graphics.drawString(
-                    font,
-                    Component.literal(
-                            "Сила: " + stats.getStrength()
-                    ),
-                    x,
-                    y,
-                    0xFFFFFFFF
+            drawStat(
+                    graphics, "Сила",
+                    stats.getStrength(), x, top + 169
             );
-
-            y += 25;
-
-            graphics.drawString(
-                    font,
-                    Component.literal(
-                            "Витривалість: " + stats.getEndurance()
-                    ),
-                    x,
-                    y,
-                    0xFFFFFFFF
+            drawStat(
+                    graphics, "Витривалість",
+                    stats.getEndurance(), x, top + 197
             );
-
-            y += 25;
-
-            graphics.drawString(
-                    font,
-                    Component.literal(
-                            "Сприйняття: " + stats.getPerception()
-                    ),
-                    x,
-                    y,
-                    0xFFFFFFFF
+            drawStat(
+                    graphics, "Сприйняття",
+                    stats.getPerception(), x, top + 225
             );
-
-            y += 25;
-
-            graphics.drawString(
-                    font,
-                    Component.literal(
-                            "Спритність: " + stats.getAgility()
-                    ),
-                    x,
-                    y,
-                    0xFFFFFFFF
+            drawStat(
+                    graphics, "Спритність",
+                    stats.getAgility(), x, top + 253
             );
-
-            y += 25;
-
-            graphics.drawString(
-                    font,
-                    Component.literal(
-                            "Інтелект: " + stats.getIntelligence()
-                    ),
-                    x,
-                    y,
-                    0xFFFFFFFF
+            drawStat(
+                    graphics, "Інтелект",
+                    stats.getIntelligence(), x, top + 281
             );
 
             graphics.drawString(
@@ -377,33 +395,46 @@ public class StatusScreen extends Screen {
                             "Вільні очки: "
                                     + stats.getAvailablePoints()
                     ).withStyle(ChatFormatting.GREEN),
-                    x,
-                    top + 265,
-                    0xFF80FF80
+                    x + 150,
+                    top + 169,
+                    GREEN
             );
 
             graphics.drawString(
                     font,
-                    Component.literal("Клас: Берсерк"),
-                    x,
-                    top + 280,
-                    0xFFFF7777
-            );
-
-            graphics.drawString(
-                    font,
-                    Component.literal("Навичка: Поглинання"),
-                    x,
-                    top + 295,
-                    0xFFB58AFF
+                    Component.literal("Навичка: Поглинання")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE),
+                    x + 150,
+                    top + 197,
+                    0xFFD5A6FF
             );
         }
 
-        super.render(
-                graphics,
-                mouseX,
-                mouseY,
-                partialTick
+        super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    private void drawStat(
+            GuiGraphics graphics,
+            String name,
+            int value,
+            int x,
+            int y
+    ) {
+        graphics.drawString(
+                font,
+                Component.literal(name),
+                x,
+                y,
+                WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(String.valueOf(value))
+                        .withStyle(ChatFormatting.GOLD),
+                x + 150,
+                y,
+                GOLD
         );
     }
 
@@ -412,3 +443,4 @@ public class StatusScreen extends Screen {
         return false;
     }
 }
+
