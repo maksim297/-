@@ -1,4 +1,3 @@
-
 package com.berserkofgluttony;
 
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -9,8 +8,7 @@ import java.util.function.Supplier;
 
 public final class ModAttachments {
 
-    private ModAttachments() {
-    }
+    private ModAttachments() {}
 
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
             DeferredRegister.create(
@@ -23,6 +21,15 @@ public final class ModAttachments {
                     "rpg_stats",
                     () -> AttachmentType.builder(RpgStats::new)
                             .serialize(RpgStats.CODEC)
+                            .copyOnDeath()
+                            .build()
+            );
+
+    public static final Supplier<AttachmentType<PlayerGold>> PLAYER_GOLD =
+            ATTACHMENT_TYPES.register(
+                    "player_gold",
+                    () -> AttachmentType.builder(PlayerGold::new)
+                            .serialize(PlayerGold.CODEC)
                             .copyOnDeath()
                             .build()
             );
