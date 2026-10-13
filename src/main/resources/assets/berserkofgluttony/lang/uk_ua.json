@@ -1,0 +1,30 @@
+
+{
+  "key.berserkofgluttony.open_status": "Відкрити статус персонажа",
+  "key.categories.berserkofgluttony": "Ненаситний Берсерк",
+
+  "screen.berserkofgluttony.status": "СТАТУС ПЕРСОНАЖА",
+
+  "stat.berserkofgluttony.name": "Ім'я",
+  "stat.berserkofgluttony.health": "Здоров'я",
+  "stat.berserkofgluttony.armor": "Броня",
+  "stat.berserkofgluttony.level": "Рівень",
+  "stat.berserkofgluttony.experience": "Досвід",
+
+  "stat.berserkofgluttony.strength": "Сила",
+  "stat.berserkofgluttony.endurance": "Витривалість",
+  "stat.berserkofgluttony.perception": "Сприйняття",
+  "stat.berserkofgluttony.agility": "Спритність",
+  "stat.berserkofgluttony.intelligence": "Інтелект",
+
+  "class.berserkofgluttony.berserker": "Берсерк",
+  "skill.berserkofgluttony.absorption": "Поглинання",
+
+  "label.berserkofgluttony.characteristics": "ХАРАКТЕРИСТИКИ",
+  "label.berserkofgluttony.class": "Клас",
+  "label.berserkofgluttony.skill": "Навичка",
+  "label.berserkofgluttony.close": "ESC — закрити",
+
+  "item.berserkofgluttony.greed_sword": "Меч Жадібності",
+  "item.berserkofgluttony.greed_bow": "Лук Жадібності"
+}
