@@ -2,6 +2,7 @@ package com.berserkofgluttony;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -9,16 +10,80 @@ import net.minecraft.world.entity.player.Player;
 public class StatusScreen extends Screen {
 
     private final Player player;
-    private final RpgStats stats;
+    private RpgStats stats;
 
     public StatusScreen(Player player) {
         super(Component.translatable(
                 "screen.berserkofgluttony.status"
         ));
-
         this.player = player;
-        this.stats = player.getData(
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        stats = player.getData(
                 ModAttachments.RPG_STATS.get()
+        );
+
+        int panelWidth = 280;
+        int panelHeight = 310;
+        int left = (width - panelWidth) / 2;
+        int top = (height - panelHeight) / 2;
+
+        int buttonX = left + 220;
+        int y = top + 104;
+
+        addStatButton("strength", buttonX, y);
+        y += 15;
+
+        addStatButton("endurance", buttonX, y);
+        y += 15;
+
+        addStatButton("perception", buttonX, y);
+        y += 15;
+
+        addStatButton("agility", buttonX, y);
+        y += 15;
+
+        addStatButton("intelligence", buttonX, y);
+
+        addRenderableWidget(
+                Button.builder(
+                        Component.literal(
+                                stats.isAutoPointsAllocated()
+                                        ? "Авто: УВІМК."
+                                        : "Авто: ВИМК."
+                        ),
+                        button -> {
+                            boolean enabled =
+                                    !stats.isAutoPointsAllocated();
+
+                            ModNetwork.setAutomaticDistribution(
+                                    enabled
+                            );
+
+                            stats.setAutoPointsAllocated(enabled);
+                            rebuildWidgets();
+                        }
+                ).bounds(left + 12, top + 275, 130, 20).build()
+        );
+    }
+
+    private void addStatButton(
+            String statName,
+            int x,
+            int y
+    ) {
+        addRenderableWidget(
+                Button.builder(
+                        Component.literal("+"),
+                        button -> {
+                            ModNetwork.spendPoint(statName);
+                            button.active = false;
+                        }
+                ).bounds(x, y, 25, 14).build()
         );
     }
 
@@ -29,7 +94,7 @@ public class StatusScreen extends Screen {
             int mouseY,
             float partialTick
     ) {
-        this.renderBackground(
+        renderBackground(
                 graphics,
                 mouseX,
                 mouseY,
@@ -38,8 +103,8 @@ public class StatusScreen extends Screen {
 
         int panelWidth = 280;
         int panelHeight = 310;
-        int left = (this.width - panelWidth) / 2;
-        int top = (this.height - panelHeight) / 2;
+        int left = (width - panelWidth) / 2;
+        int top = (height - panelHeight) / 2;
 
         graphics.fill(
                 left, top,
@@ -58,19 +123,17 @@ public class StatusScreen extends Screen {
         int y = top + 12;
 
         graphics.drawCenteredString(
-                this.font,
+                font,
                 Component.translatable(
                         "screen.berserkofgluttony.status"
                 ).withStyle(ChatFormatting.GOLD),
-                this.width / 2,
-                y,
-                0xFFFFFF
+                width / 2, y, 0xFFFFFF
         );
 
         y += 22;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Ім'я: " + player.getName().getString()
                 ),
@@ -79,7 +142,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         String.format(
                                 java.util.Locale.ROOT,
@@ -93,7 +156,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Броня: " + player.getArmorValue()
                 ),
@@ -102,7 +165,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Рівень: " + player.experienceLevel
                 ),
@@ -111,7 +174,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Досвід: " +
                         Math.round(player.experienceProgress * 100) +
@@ -122,7 +185,7 @@ public class StatusScreen extends Screen {
         y += 20;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal("ХАРАКТЕРИСТИКИ")
                         .withStyle(ChatFormatting.GOLD),
                 x, y, 0xFFFFD080
@@ -130,7 +193,7 @@ public class StatusScreen extends Screen {
         y += 17;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Сила: " + stats.getStrength()
                 ),
@@ -139,7 +202,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Витривалість: " + stats.getEndurance()
                 ),
@@ -148,7 +211,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Сприйняття: " + stats.getPerception()
                 ),
@@ -157,7 +220,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Спритність: " + stats.getAgility()
                 ),
@@ -166,7 +229,7 @@ public class StatusScreen extends Screen {
         y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Інтелект: " + stats.getIntelligence()
                 ),
@@ -175,44 +238,23 @@ public class StatusScreen extends Screen {
         y += 20;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal(
                         "Вільні очки: " + stats.getAvailablePoints()
                 ).withStyle(ChatFormatting.GREEN),
                 x, y, 0xFF80FF80
         );
-        y += 15;
 
         graphics.drawString(
-                this.font,
-                Component.literal(
-                        "Авто розподіл: " +
-                        (stats.isAutoPointsAllocated() ? "Увімкнено" : "Вимкнено")
-                ).withStyle(ChatFormatting.AQUA),
-                x, y, 0xFF80FFFF
-        );
-        y += 20;
-
-        graphics.drawString(
-                this.font,
+                font,
                 Component.literal("Клас: Берсерк"),
-                x, y, 0xFFFF7777
+                x, top + 250, 0xFFFF7777
         );
-        y += 15;
 
         graphics.drawString(
-                this.font,
+                font,
                 Component.literal("Навичка: Поглинання"),
-                x, y, 0xFFB58AFF
-        );
-
-        graphics.drawCenteredString(
-                this.font,
-                Component.literal("ESC — закрити")
-                        .withStyle(ChatFormatting.GRAY),
-                this.width / 2,
-                top + panelHeight - 13,
-                0xFFFFFFFF
+                x, top + 265, 0xFFB58AFF
         );
 
         super.render(
