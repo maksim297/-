@@ -6,6 +6,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -58,6 +59,27 @@ public final class ModNetwork {
         }
     }
 
+    public record PurchaseItemPayload(String itemId)
+            implements CustomPacketPayload {
+
+        public static final Type<PurchaseItemPayload> TYPE =
+                new Type<>(ResourceLocation.fromNamespaceAndPath(
+                        BerserkOfGluttony.MOD_ID, "purchase_item"));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf,
+                PurchaseItemPayload> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.STRING_UTF8,
+                        PurchaseItemPayload::itemId,
+                        PurchaseItemPayload::new
+                );
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
     public record StatsSyncPayload(
             int strength,
             int endurance,
@@ -80,22 +102,14 @@ public final class ModNetwork {
                     @Override
                     public StatsSyncPayload decode(
                             RegistryFriendlyByteBuf buf) {
-                        int strength = buf.readVarInt();
-                        int endurance = buf.readVarInt();
-                        int perception = buf.readVarInt();
-                        int agility = buf.readVarInt();
-                        int intelligence = buf.readVarInt();
-                        int availablePoints = buf.readVarInt();
-                        boolean auto = buf.readBoolean();
-
                         return new StatsSyncPayload(
-                                strength,
-                                endurance,
-                                perception,
-                                agility,
-                                intelligence,
-                                availablePoints,
-                                auto
+                                buf.readVarInt(),
+                                buf.readVarInt(),
+                                buf.readVarInt(),
+                                buf.readVarInt(),
+                                buf.readVarInt(),
+                                buf.readVarInt(),
+                                buf.readBoolean()
                         );
                     }
 
@@ -185,6 +199,39 @@ public final class ModNetwork {
                     }
             );
 
+            registrar.playToServer(
+                    PurchaseItemPayload.TYPE,
+                    PurchaseItemPayload.STREAM_CODEC,
+                    (payload, context) -> {
+                        if (context.player() instanceof ServerPlayer player) {
+                            context.enqueueWork(() -> {
+                                ShopManager.PurchaseResult result =
+                                        ShopManager.purchase(
+                                                player,
+                                                payload.itemId()
+                                        );
+
+                                String message = switch (result) {
+                                    case SUCCESS ->
+                                            "Покупку виконано!";
+                                    case ITEM_NOT_FOUND ->
+                                            "Товар не знайдено.";
+                                    case NOT_ENOUGH_GOLD ->
+                                            "Недостатньо золота!";
+                                    case INVENTORY_FULL ->
+                                            "Не вдалося додати товар до інвентарю. Золото повернуто.";
+                                    case ITEM_NOT_IMPLEMENTED ->
+                                            "Цей товар ще не доступний.";
+                                };
+
+                                player.sendSystemMessage(
+                                        Component.literal(message)
+                                );
+                            });
+                        }
+                    }
+            );
+
             registrar.playToClient(
                     StatsSyncPayload.TYPE,
                     StatsSyncPayload.STREAM_CODEC,
@@ -211,6 +258,11 @@ public final class ModNetwork {
     public static void setAutomaticDistribution(boolean enabled) {
         PacketDistributor.sendToServer(
                 new AutoDistributionPayload(enabled));
+    }
+
+    public static void purchaseItem(String itemId) {
+        PacketDistributor.sendToServer(
+                new PurchaseItemPayload(itemId));
     }
 
     public static void syncStats(ServerPlayer player) {
