@@ -36,24 +36,21 @@ public class StatusScreen extends Screen {
                 partialTick
         );
 
-        int panelWidth = 260;
-        int panelHeight = 285;
+        int panelWidth = 280;
+        int panelHeight = 310;
         int left = (this.width - panelWidth) / 2;
         int top = (this.height - panelHeight) / 2;
 
         graphics.fill(
-                left,
-                top,
+                left, top,
                 left + panelWidth,
                 top + panelHeight,
                 0xEE17191F
         );
 
         graphics.renderOutline(
-                left,
-                top,
-                panelWidth,
-                panelHeight,
+                left, top,
+                panelWidth, panelHeight,
                 0xFFB58A52
         );
 
@@ -79,7 +76,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFFFFFF
         );
-
         y += 15;
 
         graphics.drawString(
@@ -94,7 +90,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFF7777
         );
-
         y += 15;
 
         graphics.drawString(
@@ -104,7 +99,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFCCCCCC
         );
-
         y += 15;
 
         graphics.drawString(
@@ -114,7 +108,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFFFFFF
         );
-
         y += 15;
 
         graphics.drawString(
@@ -126,7 +119,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFF80FF80
         );
-
         y += 20;
 
         graphics.drawString(
@@ -135,7 +127,6 @@ public class StatusScreen extends Screen {
                         .withStyle(ChatFormatting.GOLD),
                 x, y, 0xFFFFD080
         );
-
         y += 17;
 
         graphics.drawString(
@@ -145,7 +136,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFFFFFF
         );
-
         y += 15;
 
         graphics.drawString(
@@ -155,7 +145,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFFFFFF
         );
-
         y += 15;
 
         graphics.drawString(
@@ -165,7 +154,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFFFFFF
         );
-
         y += 15;
 
         graphics.drawString(
@@ -175,7 +163,6 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFFFFFF
         );
-
         y += 15;
 
         graphics.drawString(
@@ -185,7 +172,25 @@ public class StatusScreen extends Screen {
                 ),
                 x, y, 0xFFFFFFFF
         );
+        y += 20;
 
+        graphics.drawString(
+                this.font,
+                Component.literal(
+                        "Вільні очки: " + stats.getAvailablePoints()
+                ).withStyle(ChatFormatting.GREEN),
+                x, y, 0xFF80FF80
+        );
+        y += 15;
+
+        graphics.drawString(
+                this.font,
+                Component.literal(
+                        "Авто розподіл: " +
+                        (stats.isAutoPointsAllocated() ? "Увімкнено" : "Вимкнено")
+                ).withStyle(ChatFormatting.AQUA),
+                x, y, 0xFF80FFFF
+        );
         y += 20;
 
         graphics.drawString(
@@ -193,7 +198,6 @@ public class StatusScreen extends Screen {
                 Component.literal("Клас: Берсерк"),
                 x, y, 0xFFFF7777
         );
-
         y += 15;
 
         graphics.drawString(
