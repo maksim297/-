@@ -30,6 +30,7 @@ public final class HealthEvents {
     ) {
         if (event.getEntity() instanceof ServerPlayer player) {
             updateHealthBonus(player);
+            ModNetwork.syncStats(player);
         }
     }
 
@@ -39,6 +40,7 @@ public final class HealthEvents {
     ) {
         if (event.getEntity() instanceof ServerPlayer player) {
             updateHealthBonus(player);
+            ModNetwork.syncStats(player);
         }
     }
 
@@ -70,10 +72,7 @@ public final class HealthEvents {
         }
 
         player.setHealth(
-                Math.min(
-                        player.getHealth(),
-                        player.getMaxHealth()
-                )
+                Math.min(player.getHealth(), player.getMaxHealth())
         );
     }
 }
