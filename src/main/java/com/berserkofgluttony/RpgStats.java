@@ -9,6 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 public class RpgStats {
 
     public static final int BASE_STAT = 10;
+    public static final int POINTS_PER_LEVEL = 5;
 
     public static final Codec<RpgStats> CODEC =
             RecordCodecBuilder.create(instance ->
@@ -118,39 +119,66 @@ public class RpgStats {
     }
 
     public void addAvailablePoints(int points) {
-        availablePoints = Math.max(0, availablePoints + points);
+        if (points <= 0) {
+            return;
+        }
+
+        availablePoints += points;
+
+        if (autoPointsAllocated) {
+            distributeAutomaticPoints();
+        }
+    }
+
+    public void awardLevelUpPoints() {
+        addAvailablePoints(POINTS_PER_LEVEL);
     }
 
     public boolean addStrength(int points) {
-        if (!canSpend(points)) return false;
+        if (!canSpend(points)) {
+            return false;
+        }
+
         strength += points;
         availablePoints -= points;
         return true;
     }
 
     public boolean addEndurance(int points) {
-        if (!canSpend(points)) return false;
+        if (!canSpend(points)) {
+            return false;
+        }
+
         endurance += points;
         availablePoints -= points;
         return true;
     }
 
     public boolean addPerception(int points) {
-        if (!canSpend(points)) return false;
+        if (!canSpend(points)) {
+            return false;
+        }
+
         perception += points;
         availablePoints -= points;
         return true;
     }
 
     public boolean addAgility(int points) {
-        if (!canSpend(points)) return false;
+        if (!canSpend(points)) {
+            return false;
+        }
+
         agility += points;
         availablePoints -= points;
         return true;
     }
 
     public boolean addIntelligence(int points) {
-        if (!canSpend(points)) return false;
+        if (!canSpend(points)) {
+            return false;
+        }
+
         intelligence += points;
         availablePoints -= points;
         return true;
