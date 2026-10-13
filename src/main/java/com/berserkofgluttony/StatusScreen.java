@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 public class StatusScreen extends Screen {
 
@@ -34,17 +33,23 @@ public class StatusScreen extends Screen {
         int top = (height - PANEL_HEIGHT) / 2;
 
         addRenderableWidget(
-                Button.builder(Component.literal("СТАТУС"), button -> {
-                    shopOpen = false;
-                    rebuildWidgets();
-                }).bounds(left + 10, top + 10, 135, 20).build()
+                Button.builder(
+                        Component.literal("СТАТУС"),
+                        button -> {
+                            shopOpen = false;
+                            rebuildWidgets();
+                        }
+                ).bounds(left + 10, top + 10, 135, 20).build()
         );
 
         addRenderableWidget(
-                Button.builder(Component.literal("МАГАЗИН"), button -> {
-                    shopOpen = true;
-                    rebuildWidgets();
-                }).bounds(left + 155, top + 10, 135, 20).build()
+                Button.builder(
+                        Component.literal("МАГАЗИН"),
+                        button -> {
+                            shopOpen = true;
+                            rebuildWidgets();
+                        }
+                ).bounds(left + 155, top + 10, 135, 20).build()
         );
 
         if (!shopOpen) {
@@ -67,6 +72,7 @@ public class StatusScreen extends Screen {
                             button -> {
                                 boolean enabled =
                                         !stats.isAutoPointsAllocated();
+
                                 ModNetwork.setAutomaticDistribution(enabled);
                                 stats.setAutoPointsAllocated(enabled);
                                 rebuildWidgets();
@@ -87,19 +93,26 @@ public class StatusScreen extends Screen {
             );
 
             int itemY = top + 78;
-            for (ShopItem item : ShopRegistry.getItems(selectedCategory)) {
-                final String itemId = item.id();
+
+            for (ShopItem item :
+                    ShopRegistry.getItems(selectedCategory)) {
+
+                String itemId = item.id();
 
                 addRenderableWidget(
                         Button.builder(
                                 Component.literal(
-                                        item.name() + " — " + item.price() + " золота"
+                                        item.name()
+                                                + " — "
+                                                + item.price()
+                                                + " золота"
                                 ),
                                 button -> purchaseItem(itemId)
                         ).bounds(left + 10, itemY, 280, 20).build()
                 );
 
                 itemY += 25;
+
                 if (itemY > top + 275) {
                     break;
                 }
@@ -124,27 +137,20 @@ public class StatusScreen extends Screen {
     }
 
     private void purchaseItem(String itemId) {
-        if (!(player instanceof ServerPlayer)) {
-            player.sendSystemMessage(
-                    Component.literal(
-                            "Покупки доступні після підключення до сервера."
-                    )
-            );
-            return;
-        }
-
-        player.sendSystemMessage(
-                Component.literal(
-                        "Для покупки потрібен серверний обробник магазину."
-                )
-        );
+        ModNetwork.purchaseItem(itemId);
     }
 
     private void refreshStats() {
-        stats = player.getData(ModAttachments.RPG_STATS.get());
+        stats = player.getData(
+                ModAttachments.RPG_STATS.get()
+        );
     }
 
-    private void addStatButton(String statName, int x, int y) {
+    private void addStatButton(
+            String statName,
+            int x,
+            int y
+    ) {
         addRenderableWidget(
                 Button.builder(
                         Component.literal("+"),
@@ -163,7 +169,13 @@ public class StatusScreen extends Screen {
             int mouseY,
             float partialTick
     ) {
-        renderBackground(graphics, mouseX, mouseY, partialTick);
+        renderBackground(
+                graphics,
+                mouseX,
+                mouseY,
+                partialTick
+        );
+
         refreshStats();
 
         int left = (width - PANEL_WIDTH) / 2;
@@ -171,14 +183,18 @@ public class StatusScreen extends Screen {
         int x = left + 10;
 
         graphics.fill(
-                left, top,
-                left + PANEL_WIDTH, top + PANEL_HEIGHT,
+                left,
+                top,
+                left + PANEL_WIDTH,
+                top + PANEL_HEIGHT,
                 0xEE17191F
         );
 
         graphics.renderOutline(
-                left, top,
-                PANEL_WIDTH, PANEL_HEIGHT,
+                left,
+                top,
+                PANEL_WIDTH,
+                PANEL_HEIGHT,
                 0xFFB58A52
         );
 
@@ -187,37 +203,50 @@ public class StatusScreen extends Screen {
                     font,
                     Component.literal("МАГАЗИН")
                             .withStyle(ChatFormatting.GOLD),
-                    width / 2, top + 35, 0xFFFFFFFF
+                    width / 2,
+                    top + 35,
+                    0xFFFFFFFF
             );
 
             int gold = 0;
+
             if (player instanceof ServerPlayer serverPlayer) {
                 gold = GoldManager.getGold(serverPlayer);
             }
 
             graphics.drawString(
                     font,
-                    Component.literal("Всього золота: " + gold)
-                            .withStyle(ChatFormatting.GOLD),
-                    x + 5, top + 290, 0xFFFFD700
+                    Component.literal(
+                            "Всього золота: " + gold
+                    ).withStyle(ChatFormatting.GOLD),
+                    x + 5,
+                    top + 290,
+                    0xFFFFD700
             );
         } else {
             graphics.drawCenteredString(
                     font,
                     Component.literal("СТАТУС ПЕРСОНАЖА")
                             .withStyle(ChatFormatting.GOLD),
-                    width / 2, top + 35, 0xFFFFFFFF
+                    width / 2,
+                    top + 35,
+                    0xFFFFFFFF
             );
 
             int y = top + 60;
 
             graphics.drawString(
                     font,
-                    Component.literal("Ім'я: " + player.getName().getString()),
-                    x, y, 0xFFFFFFFF
+                    Component.literal(
+                            "Ім'я: " + player.getName().getString()
+                    ),
+                    x,
+                    y,
+                    0xFFFFFFFF
             );
 
             y += 15;
+
             graphics.drawString(
                     font,
                     Component.literal(String.format(
@@ -226,86 +255,156 @@ public class StatusScreen extends Screen {
                             player.getHealth(),
                             player.getMaxHealth()
                     )),
-                    x, y, 0xFFFF7777
+                    x,
+                    y,
+                    0xFFFF7777
             );
 
             y += 15;
+
             graphics.drawString(
                     font,
-                    Component.literal("Броня: " + player.getArmorValue()),
-                    x, y, 0xFFCCCCCC
+                    Component.literal(
+                            "Броня: " + player.getArmorValue()
+                    ),
+                    x,
+                    y,
+                    0xFFCCCCCC
             );
 
             y += 15;
+
             graphics.drawString(
                     font,
-                    Component.literal("Рівень: " + player.experienceLevel),
-                    x, y, 0xFFFFFFFF
+                    Component.literal(
+                            "Рівень: " + player.experienceLevel
+                    ),
+                    x,
+                    y,
+                    0xFFFFFFFF
             );
 
             y += 15;
+
             graphics.drawString(
                     font,
-                    Component.literal("Досвід: " +
-                            Math.round(player.experienceProgress * 100) + "%"),
-                    x, y, 0xFF80FF80
+                    Component.literal(
+                            "Досвід: "
+                                    + Math.round(
+                                            player.experienceProgress * 100
+                                    )
+                                    + "%"
+                    ),
+                    x,
+                    y,
+                    0xFF80FF80
             );
 
             y += 20;
+
             graphics.drawString(
                     font,
                     Component.literal("ХАРАКТЕРИСТИКИ")
                             .withStyle(ChatFormatting.GOLD),
-                    x, y, 0xFFFFD080
+                    x,
+                    y,
+                    0xFFFFD080
             );
 
             y += 17;
-            graphics.drawString(font,
-                    Component.literal("Сила: " + stats.getStrength()),
-                    x, y, 0xFFFFFFFF);
-
-            y += 25;
-            graphics.drawString(font,
-                    Component.literal("Витривалість: " + stats.getEndurance()),
-                    x, y, 0xFFFFFFFF);
-
-            y += 25;
-            graphics.drawString(font,
-                    Component.literal("Сприйняття: " + stats.getPerception()),
-                    x, y, 0xFFFFFFFF);
-
-            y += 25;
-            graphics.drawString(font,
-                    Component.literal("Спритність: " + stats.getAgility()),
-                    x, y, 0xFFFFFFFF);
-
-            y += 25;
-            graphics.drawString(font,
-                    Component.literal("Інтелект: " + stats.getIntelligence()),
-                    x, y, 0xFFFFFFFF);
 
             graphics.drawString(
                     font,
-                    Component.literal("Вільні очки: " +
-                            stats.getAvailablePoints())
-                            .withStyle(ChatFormatting.GREEN),
-                    x, top + 265, 0xFF80FF80
+                    Component.literal(
+                            "Сила: " + stats.getStrength()
+                    ),
+                    x,
+                    y,
+                    0xFFFFFFFF
+            );
+
+            y += 25;
+
+            graphics.drawString(
+                    font,
+                    Component.literal(
+                            "Витривалість: " + stats.getEndurance()
+                    ),
+                    x,
+                    y,
+                    0xFFFFFFFF
+            );
+
+            y += 25;
+
+            graphics.drawString(
+                    font,
+                    Component.literal(
+                            "Сприйняття: " + stats.getPerception()
+                    ),
+                    x,
+                    y,
+                    0xFFFFFFFF
+            );
+
+            y += 25;
+
+            graphics.drawString(
+                    font,
+                    Component.literal(
+                            "Спритність: " + stats.getAgility()
+                    ),
+                    x,
+                    y,
+                    0xFFFFFFFF
+            );
+
+            y += 25;
+
+            graphics.drawString(
+                    font,
+                    Component.literal(
+                            "Інтелект: " + stats.getIntelligence()
+                    ),
+                    x,
+                    y,
+                    0xFFFFFFFF
+            );
+
+            graphics.drawString(
+                    font,
+                    Component.literal(
+                            "Вільні очки: "
+                                    + stats.getAvailablePoints()
+                    ).withStyle(ChatFormatting.GREEN),
+                    x,
+                    top + 265,
+                    0xFF80FF80
             );
 
             graphics.drawString(
                     font,
                     Component.literal("Клас: Берсерк"),
-                    x, top + 280, 0xFFFF7777
+                    x,
+                    top + 280,
+                    0xFFFF7777
             );
 
             graphics.drawString(
                     font,
                     Component.literal("Навичка: Поглинання"),
-                    x, top + 295, 0xFFB58AFF
+                    x,
+                    top + 295,
+                    0xFFB58AFF
             );
         }
 
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.render(
+                graphics,
+                mouseX,
+                mouseY,
+                partialTick
+        );
     }
 
     @Override
