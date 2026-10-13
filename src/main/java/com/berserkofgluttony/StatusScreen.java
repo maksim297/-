@@ -1,4 +1,3 @@
-
 package com.berserkofgluttony;
 
 import net.minecraft.ChatFormatting;
@@ -70,16 +69,6 @@ public class StatusScreen extends Screen {
                 left + 10, top + 62, 100);
 
         if (currentPage == Page.STATUS) {
-            int buttonX = left + 290;
-            int firstY = top + 174;
-            int gap = 27;
-
-            addStatButton("strength", buttonX, firstY);
-            addStatButton("endurance", buttonX, firstY + gap);
-            addStatButton("perception", buttonX, firstY + gap * 2);
-            addStatButton("agility", buttonX, firstY + gap * 3);
-            addStatButton("intelligence", buttonX, firstY + gap * 4);
-
             addRenderableWidget(
                     Button.builder(
                             Component.literal(
@@ -94,6 +83,7 @@ public class StatusScreen extends Screen {
                                 ModNetwork.setAutomaticDistribution(
                                         enabled
                                 );
+
                                 stats.setAutoPointsAllocated(enabled);
                                 rebuildWidgets();
                             }
@@ -180,22 +170,6 @@ public class StatusScreen extends Screen {
         );
     }
 
-    private void addStatButton(
-            String statName,
-            int x,
-            int y
-    ) {
-        addRenderableWidget(
-                Button.builder(
-                        Component.literal("+"),
-                        button -> {
-                            ModNetwork.spendPoint(statName);
-                            button.active = false;
-                        }
-                ).bounds(x, y, 24, 20).build()
-        );
-    }
-
     private void refreshStats() {
         stats = player.getData(
                 ModAttachments.RPG_STATS.get()
@@ -243,8 +217,10 @@ public class StatusScreen extends Screen {
         graphics.drawCenteredString(
                 font,
                 Component.literal("СТАТУС ПЕРСОНАЖА")
-                        .withStyle(ChatFormatting.BOLD,
-                                ChatFormatting.GOLD),
+                        .withStyle(
+                                ChatFormatting.BOLD,
+                                ChatFormatting.GOLD
+                        ),
                 width / 2,
                 top + 80,
                 GOLD
@@ -443,9 +419,7 @@ public class StatusScreen extends Screen {
     ) {
         graphics.drawString(
                 font,
-                Component.literal(
-                        "Обери предмет для купівлі"
-                ),
+                Component.literal("Обери предмет для купівлі"),
                 x, top + 285, WHITE
         );
 
@@ -489,4 +463,3 @@ public class StatusScreen extends Screen {
         return false;
     }
 }
-                                 
