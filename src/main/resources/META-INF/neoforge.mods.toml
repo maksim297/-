@@ -1,0 +1,27 @@
+
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="berserkofgluttony"
+version="1.0.0"
+displayName="Berserk Of Gluttony"
+authors="BerserkOfGluttony"
+description='''
+A Minecraft RPG mod inspired by Berserk of Gluttony.
+'''
+
+[[dependencies.berserkofgluttony]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.172,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.berserkofgluttony]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"
