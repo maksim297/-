@@ -4,8 +4,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 public final class StatPoints {
 
-    private StatPoints() {
-    }
+    private StatPoints() {}
 
     public static boolean spendPoint(
             ServerPlayer player,
@@ -24,19 +23,14 @@ public final class StatPoints {
         switch (statName) {
             case "strength" ->
                     success = stats.addStrength(1);
-
             case "endurance" ->
                     success = stats.addEndurance(1);
-
             case "perception" ->
                     success = stats.addPerception(1);
-
             case "agility" ->
                     success = stats.addAgility(1);
-
             case "intelligence" ->
                     success = stats.addIntelligence(1);
-
             default -> {
                 return false;
             }
@@ -53,6 +47,8 @@ public final class StatPoints {
 
         HealthEvents.updateHealthBonus(player);
         MovementEvents.updateSpeedBonus(player);
+
+        ModNetwork.syncStats(player);
 
         return true;
     }
@@ -78,5 +74,7 @@ public final class StatPoints {
 
         HealthEvents.updateHealthBonus(player);
         MovementEvents.updateSpeedBonus(player);
+
+        ModNetwork.syncStats(player);
     }
 }
