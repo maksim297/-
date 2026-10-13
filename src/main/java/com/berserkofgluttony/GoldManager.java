@@ -4,8 +4,12 @@ import net.minecraft.server.level.ServerPlayer;
 
 public final class GoldManager {
 
-    private GoldManager() {}
+    private GoldManager() {
+    }
 
+    /**
+     * Повертає кількість золота гравця.
+     */
     public static int getGold(ServerPlayer player) {
         if (player == null) {
             return 0;
@@ -16,6 +20,10 @@ public final class GoldManager {
         ).getGold();
     }
 
+    /**
+     * Додає золото гравцеві.
+     * Від'ємні та нульові значення ігноруються.
+     */
     public static void addGold(ServerPlayer player, int amount) {
         if (player == null || amount <= 0) {
             return;
@@ -25,7 +33,11 @@ public final class GoldManager {
                 ModAttachments.PLAYER_GOLD.get()
         );
 
-        gold.addGold(amount);
+        long newBalance = (long) gold.getGold() + amount;
+
+        gold.setGold(
+                (int) Math.min(newBalance, Integer.MAX_VALUE)
+        );
 
         player.setData(
                 ModAttachments.PLAYER_GOLD.get(),
@@ -33,6 +45,11 @@ public final class GoldManager {
         );
     }
 
+    /**
+     * Списує золото, якщо його достатньо.
+     *
+     * @return true, якщо списання виконано.
+     */
     public static boolean spendGold(ServerPlayer player, int amount) {
         if (player == null || amount <= 0) {
             return false;
@@ -41,6 +58,10 @@ public final class GoldManager {
         PlayerGold gold = player.getData(
                 ModAttachments.PLAYER_GOLD.get()
         );
+
+        if (gold.getGold() < amount) {
+            return false;
+        }
 
         if (!gold.spendGold(amount)) {
             return false;
@@ -54,6 +75,10 @@ public final class GoldManager {
         return true;
     }
 
+    /**
+     * Встановлює баланс золота.
+     * Від'ємне значення перетворюється на 0.
+     */
     public static void setGold(ServerPlayer player, int amount) {
         if (player == null) {
             return;
@@ -63,11 +88,23 @@ public final class GoldManager {
                 ModAttachments.PLAYER_GOLD.get()
         );
 
-        gold.setGold(amount);
+        gold.setGold(Math.max(0, amount));
 
         player.setData(
                 ModAttachments.PLAYER_GOLD.get(),
                 gold
         );
+    }
+
+    /**
+     * Перевіряє, чи вистачає золота на покупку.
+     */
+    public static boolean hasEnoughGold(
+            ServerPlayer player,
+            int amount
+    ) {
+        return player != null
+                && amount > 0
+                && getGold(player) >= amount;
     }
 }
