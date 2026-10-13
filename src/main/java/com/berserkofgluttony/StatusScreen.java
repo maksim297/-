@@ -1,4 +1,3 @@
-
 package com.berserkofgluttony;
 
 import net.minecraft.ChatFormatting;
@@ -18,7 +17,9 @@ public class StatusScreen extends Screen {
         ));
 
         this.player = player;
-        this.stats = new RpgStats();
+        this.stats = player.getData(
+                ModAttachments.RPG_STATS.get()
+        );
     }
 
     @Override
