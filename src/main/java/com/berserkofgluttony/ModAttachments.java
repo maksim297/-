@@ -20,10 +20,9 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<RpgStats>> RPG_STATS =
             ATTACHMENT_TYPES.register(
                     "rpg_stats",
-                    () -> AttachmentType.<RpgStats>builder(
-                                    (Supplier<RpgStats>) RpgStats::new
-                            )
+                    () -> AttachmentType.<RpgStats>builder(RpgStats::new)
                             .serialize(RpgStats.CODEC)
+                            .sync(RpgStats.STREAM_CODEC)
                             .copyOnDeath()
                             .build()
             );
@@ -31,9 +30,7 @@ public final class ModAttachments {
     public static final Supplier<AttachmentType<PlayerGold>> PLAYER_GOLD =
             ATTACHMENT_TYPES.register(
                     "player_gold",
-                    () -> AttachmentType.<PlayerGold>builder(
-                                    (Supplier<PlayerGold>) PlayerGold::new
-                            )
+                    () -> AttachmentType.<PlayerGold>builder(PlayerGold::new)
                             .serialize(PlayerGold.CODEC)
                             .copyOnDeath()
                             .build()
