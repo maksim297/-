@@ -1,3 +1,4 @@
+
 package com.berserkofgluttony;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -89,7 +90,8 @@ public final class ModNetwork {
             int availablePoints,
             boolean autoPointsAllocated,
             int gluttonyExperience,
-            int gluttonyLevel
+            int gluttonyLevel,
+            int battleRanks
     ) implements CustomPacketPayload {
 
         public static final Type<StatsSyncPayload> TYPE =
@@ -112,6 +114,7 @@ public final class ModNetwork {
                                 buf.readVarInt(),
                                 buf.readBoolean(),
                                 buf.readVarInt(),
+                                buf.readVarInt(),
                                 buf.readVarInt()
                         );
                     }
@@ -129,6 +132,7 @@ public final class ModNetwork {
                         buf.writeBoolean(payload.autoPointsAllocated());
                         buf.writeVarInt(payload.gluttonyExperience());
                         buf.writeVarInt(payload.gluttonyLevel());
+                        buf.writeVarInt(payload.battleRanks());
                     }
                 };
 
@@ -147,7 +151,8 @@ public final class ModNetwork {
                     stats.getAvailablePoints(),
                     stats.isAutoPointsAllocated(),
                     stats.getGluttonyExperience(),
-                    stats.getGluttonyLevel()
+                    stats.getGluttonyLevel(),
+                    stats.getBattleRanks()
             );
         }
 
@@ -161,7 +166,8 @@ public final class ModNetwork {
                     availablePoints,
                     autoPointsAllocated,
                     gluttonyExperience,
-                    gluttonyLevel
+                    gluttonyLevel,
+                    battleRanks
             );
         }
     }
