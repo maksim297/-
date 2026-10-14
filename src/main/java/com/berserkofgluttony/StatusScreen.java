@@ -87,7 +87,8 @@ public class StatusScreen extends Screen {
                 addRenderableWidget(
                         Button.builder(
                                 Component.literal(
-                                        item.name() + " — " + item.price() + " золота"
+                                        item.name() + " — "
+                                                + item.price() + " золота"
                                 ),
                                 button -> ModNetwork.purchaseItem(itemId)
                         ).bounds(left + 12, itemY, 316, 22).build()
@@ -182,9 +183,7 @@ public class StatusScreen extends Screen {
                 font,
                 Component.literal("СТАТУС ПЕРСОНАЖА")
                         .withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD),
-                width / 2,
-                top + 80,
-                GOLD
+                width / 2, top + 80, GOLD
         );
 
         switch (currentPage) {
@@ -239,8 +238,9 @@ public class StatusScreen extends Screen {
         graphics.drawString(
                 font,
                 Component.literal(
-                        "Досвід: " +
-                        Math.round(player.experienceProgress * 100) + "%"
+                        "Досвід: "
+                                + Math.round(player.experienceProgress * 100)
+                                + "%"
                 ),
                 x + 170, top + 120, GREEN
         );
@@ -274,16 +274,12 @@ public class StatusScreen extends Screen {
 
         drawStat(graphics, "Сила",
                 stats.getStrength(), x, y, RED);
-
         drawStat(graphics, "Витривалість",
                 stats.getEndurance(), x, y + gap, GREEN);
-
         drawStat(graphics, "Сприйняття",
                 stats.getPerception(), x, y + gap * 2, BLUE);
-
         drawStat(graphics, "Спритність",
                 stats.getAgility(), x, y + gap * 3, YELLOW);
-
         drawStat(graphics, "Інтелект",
                 stats.getIntelligence(), x, y + gap * 4, PURPLE);
 
@@ -384,37 +380,76 @@ public class StatusScreen extends Screen {
                 font,
                 Component.literal("НАВИЧКИ ФЕЙТА")
                         .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
-                x, top + 112, GOLD
-        );
-
-        graphics.drawString(
-                font,
-                Component.literal("1. Обжерливість (Gluttony)")
-                        .withStyle(ChatFormatting.LIGHT_PURPLE),
-                x, top + 139, PURPLE
+                x, top + 108, GOLD
         );
 
         graphics.drawString(
                 font,
                 Component.literal(
-                        "Отримання характеристик і навичок"
-                ),
-                x, top + 155, WHITE
+                        "1. Обжерливість (Gluttony)"
+                ).withStyle(ChatFormatting.LIGHT_PURPLE),
+                x, top + 130, PURPLE
         );
 
         graphics.drawString(
                 font,
                 Component.literal(
-                        "переможених супротивників."
+                        "Рівень: " + stats.getGluttonyLevel()
                 ),
-                x, top + 168, WHITE
+                x, top + 146, WHITE
+        );
+
+        int required = stats.getGluttonyExperienceRequired();
+        int experience = stats.getGluttonyExperience();
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "Досвід: " + experience + " / " + required
+                ),
+                x, top + 161, WHITE
+        );
+
+        int barX = x;
+        int barY = top + 176;
+        int barWidth = 300;
+        int barHeight = 9;
+
+        graphics.fill(
+                barX, barY,
+                barX + barWidth, barY + barHeight,
+                0xFF30303B
+        );
+
+        int filledWidth = required > 0
+                ? (int) (
+                        barWidth * Math.min(
+                                1.0,
+                                Math.max(0.0, (double) experience / required)
+                        )
+                )
+                : 0;
+
+        if (filledWidth > 0) {
+            graphics.fill(
+                    barX, barY,
+                    barX + filledWidth, barY + barHeight,
+                    PURPLE
+            );
+        }
+
+        graphics.renderOutline(
+                barX, barY,
+                barWidth, barHeight,
+                0xFF777786
         );
 
         graphics.drawString(
                 font,
-                Component.literal("2. Посилення голоду (Hunger Boost)")
-                        .withStyle(ChatFormatting.RED),
-                x, top + 197, RED
+                Component.literal(
+                        "2. Посилення голоду (Hunger Boost)"
+                ).withStyle(ChatFormatting.RED),
+                x, top + 201, RED
         );
 
         graphics.drawString(
@@ -422,14 +457,15 @@ public class StatusScreen extends Screen {
                 Component.literal(
                         "Тимчасове посилення Обжерливості."
                 ),
-                x, top + 213, WHITE
+                x, top + 217, WHITE
         );
 
         graphics.drawString(
                 font,
-                Component.literal("3. Телепатія (Telepathy)")
-                        .withStyle(ChatFormatting.AQUA),
-                x, top + 242, BLUE
+                Component.literal(
+                        "3. Телепатія (Telepathy)"
+                ).withStyle(ChatFormatting.AQUA),
+                x, top + 244, BLUE
         );
 
         graphics.drawString(
@@ -437,13 +473,13 @@ public class StatusScreen extends Screen {
                 Component.literal(
                         "Спілкування Фейта з Жадібністю."
                 ),
-                x, top + 258, WHITE
+                x, top + 260, WHITE
         );
 
         graphics.drawString(
                 font,
                 Component.literal(
-                        "Опис навичок; механіки ще розробляються."
+                        "Інші ефекти навичок ще розробляються."
                 ).withStyle(ChatFormatting.GRAY),
                 x, top + 292, MUTED
         );
@@ -458,17 +494,13 @@ public class StatusScreen extends Screen {
         graphics.drawCenteredString(
                 font,
                 Component.literal(title).withStyle(ChatFormatting.GOLD),
-                width / 2,
-                top + 125,
-                GOLD
+                width / 2, top + 125, GOLD
         );
 
         graphics.drawCenteredString(
                 font,
                 Component.literal(message).withStyle(ChatFormatting.GRAY),
-                width / 2,
-                top + 155,
-                MUTED
+                width / 2, top + 155, MUTED
         );
     }
 
