@@ -102,7 +102,13 @@ public class StatusScreen extends Screen {
         }
     }
 
-    private void addTab(String title, Page page, int x, int y, int buttonWidth) {
+    private void addTab(
+            String title,
+            Page page,
+            int x,
+            int y,
+            int buttonWidth
+    ) {
         addRenderableWidget(
                 Button.builder(
                         Component.literal(title),
@@ -114,7 +120,11 @@ public class StatusScreen extends Screen {
         );
     }
 
-    private void addCategoryButton(ShopCategory category, int x, int y) {
+    private void addCategoryButton(
+            ShopCategory category,
+            int x,
+            int y
+    ) {
         addRenderableWidget(
                 Button.builder(
                         Component.literal(category.getDisplayName()),
@@ -144,71 +154,150 @@ public class StatusScreen extends Screen {
         int top = (height - PANEL_HEIGHT) / 2;
         int x = left + 16;
 
-        graphics.fill(left, top, left + PANEL_WIDTH, top + PANEL_HEIGHT, 0xF0181820);
-        graphics.renderOutline(left, top, PANEL_WIDTH, PANEL_HEIGHT, 0xFFD2A64C);
-        graphics.renderOutline(left + 4, top + 4, PANEL_WIDTH - 8, PANEL_HEIGHT - 8, 0xFF59452C);
-        graphics.fill(left + 8, top + 91, left + PANEL_WIDTH - 8, top + 93, GOLD);
+        graphics.fill(
+                left, top,
+                left + PANEL_WIDTH, top + PANEL_HEIGHT,
+                0xF0181820
+        );
+
+        graphics.renderOutline(
+                left, top,
+                PANEL_WIDTH, PANEL_HEIGHT,
+                0xFFD2A64C
+        );
+
+        graphics.renderOutline(
+                left + 4, top + 4,
+                PANEL_WIDTH - 8, PANEL_HEIGHT - 8,
+                0xFF59452C
+        );
+
+        graphics.fill(
+                left + 8, top + 91,
+                left + PANEL_WIDTH - 8, top + 93,
+                GOLD
+        );
 
         graphics.drawCenteredString(
                 font,
                 Component.literal("СТАТУС ПЕРСОНАЖА")
                         .withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD),
-                width / 2, top + 80, GOLD
+                width / 2,
+                top + 80,
+                GOLD
         );
 
         switch (currentPage) {
             case STATUS -> renderStatus(graphics, top, x);
             case SHOP -> renderShop(graphics, top, x);
-            case GROUP -> renderInfoPage(graphics, top, "ГРУПА", "Система груп буде додана окремо.");
-            case QUESTS -> renderInfoPage(graphics, top, "КВЕСТИ", "Система завдань буде додана окремо.");
-            case CRAFTING -> renderInfoPage(graphics, top, "РЕМЕСЛО", "Рецепти створення будуть додані окремо.");
-            case REWARDS -> renderInfoPage(graphics, top, "НАГОРОДИ", "Система нагород буде додана окремо.");
-            case SKILLS -> renderInfoPage(graphics, top, "НАВИЧКИ", "Навички Берсерка будуть додані окремо.");
+            case GROUP -> renderInfoPage(
+                    graphics, top, "ГРУПА",
+                    "Система груп буде додана окремо."
+            );
+            case QUESTS -> renderInfoPage(
+                    graphics, top, "КВЕСТИ",
+                    "Система завдань буде додана окремо."
+            );
+            case CRAFTING -> renderInfoPage(
+                    graphics, top, "РЕМЕСЛО",
+                    "Рецепти створення будуть додані окремо."
+            );
+            case REWARDS -> renderInfoPage(
+                    graphics, top, "НАГОРОДИ",
+                    "Система нагород буде додана окремо."
+            );
+            case SKILLS -> renderSkills(graphics, top, x);
         }
 
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
-    private void renderStatus(GuiGraphics graphics, int top, int x) {
-        graphics.drawString(font, Component.literal("Ім'я: " + player.getName().getString()), x, top + 103, WHITE);
-        graphics.drawString(font, Component.literal("Звання: Берсерк").withStyle(ChatFormatting.RED), x + 170, top + 103, RED);
+    private void renderStatus(
+            GuiGraphics graphics,
+            int top,
+            int x
+    ) {
+        graphics.drawString(
+                font,
+                Component.literal("Ім'я: " + player.getName().getString()),
+                x, top + 103, WHITE
+        );
 
-        graphics.drawString(font, Component.literal("Рівень: " + player.experienceLevel), x, top + 120, WHITE);
-        graphics.drawString(font, Component.literal("Досвід: " + Math.round(player.experienceProgress * 100) + "%"), x + 170, top + 120, GREEN);
+        graphics.drawString(
+                font,
+                Component.literal("Звання: Берсерк")
+                        .withStyle(ChatFormatting.RED),
+                x + 170, top + 103, RED
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal("Рівень: " + player.experienceLevel),
+                x, top + 120, WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "Досвід: " +
+                        Math.round(player.experienceProgress * 100) + "%"
+                ),
+                x + 170, top + 120, GREEN
+        );
 
         graphics.drawString(
                 font,
                 Component.literal(String.format(
                         java.util.Locale.ROOT,
                         "Здоров'я: %.1f / %.1f",
-                        player.getHealth(), player.getMaxHealth()
+                        player.getHealth(),
+                        player.getMaxHealth()
                 )),
                 x, top + 137, RED
         );
 
-        graphics.drawString(font, Component.literal("Броня: " + player.getArmorValue()), x + 170, top + 137, BLUE);
-        graphics.drawString(font, Component.literal("ХАРАКТЕРИСТИКИ").withStyle(ChatFormatting.GOLD), x, top + 157, GOLD);
+        graphics.drawString(
+                font,
+                Component.literal("Броня: " + player.getArmorValue()),
+                x + 170, top + 137, BLUE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal("ХАРАКТЕРИСТИКИ")
+                        .withStyle(ChatFormatting.GOLD),
+                x, top + 157, GOLD
+        );
 
         int y = top + 177;
         int gap = 27;
 
-        drawStat(graphics, "Сила", stats.getStrength(), x, y, RED);
-        drawStat(graphics, "Витривалість", stats.getEndurance(), x, y + gap, GREEN);
-        drawStat(graphics, "Сприйняття", stats.getPerception(), x, y + gap * 2, BLUE);
-        drawStat(graphics, "Спритність", stats.getAgility(), x, y + gap * 3, YELLOW);
-        drawStat(graphics, "Інтелект", stats.getIntelligence(), x, y + gap * 4, PURPLE);
+        drawStat(graphics, "Сила",
+                stats.getStrength(), x, y, RED);
 
-        // Вільні очки та навичка тепер в окремих рядках унизу.
+        drawStat(graphics, "Витривалість",
+                stats.getEndurance(), x, y + gap, GREEN);
+
+        drawStat(graphics, "Сприйняття",
+                stats.getPerception(), x, y + gap * 2, BLUE);
+
+        drawStat(graphics, "Спритність",
+                stats.getAgility(), x, y + gap * 3, YELLOW);
+
+        drawStat(graphics, "Інтелект",
+                stats.getIntelligence(), x, y + gap * 4, PURPLE);
+
         graphics.drawString(
                 font,
-                Component.literal("Вільні очки: " + stats.getAvailablePoints())
-                        .withStyle(ChatFormatting.GREEN),
+                Component.literal(
+                        "Вільні очки: " + stats.getAvailablePoints()
+                ).withStyle(ChatFormatting.GREEN),
                 x, top + 318, GREEN
         );
 
         graphics.drawString(
                 font,
-                Component.literal("Навичка: Поглинання")
+                Component.literal("Навичка: Обжерливість")
                         .withStyle(ChatFormatting.LIGHT_PURPLE),
                 x + 150, top + 318, PURPLE
         );
@@ -222,10 +311,14 @@ public class StatusScreen extends Screen {
             int y,
             int color
     ) {
-        graphics.drawString(font, Component.literal(name), x, y, WHITE);
+        graphics.drawString(
+                font, Component.literal(name), x, y, WHITE
+        );
+
         graphics.drawString(
                 font,
-                Component.literal(String.valueOf(value)).withStyle(ChatFormatting.BOLD),
+                Component.literal(String.valueOf(value))
+                        .withStyle(ChatFormatting.BOLD),
                 x + 112, y, color
         );
 
@@ -235,25 +328,124 @@ public class StatusScreen extends Screen {
         int barHeight = 7;
 
         int filledWidth = (int) (
-                barWidth * Math.min(1.0, Math.max(0, value) / 100.0)
+                barWidth * Math.min(
+                        1.0,
+                        Math.max(0, value) / 100.0
+                )
         );
 
-        graphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF30303B);
+        graphics.fill(
+                barX, barY,
+                barX + barWidth, barY + barHeight,
+                0xFF30303B
+        );
 
         if (filledWidth > 0) {
-            graphics.fill(barX, barY, barX + filledWidth, barY + barHeight, color);
+            graphics.fill(
+                    barX, barY,
+                    barX + filledWidth, barY + barHeight,
+                    color
+            );
         }
 
-        graphics.renderOutline(barX, barY, barWidth, barHeight, 0xFF777786);
+        graphics.renderOutline(
+                barX, barY,
+                barWidth, barHeight,
+                0xFF777786
+        );
     }
 
-    private void renderShop(GuiGraphics graphics, int top, int x) {
-        graphics.drawString(font, Component.literal("Обери предмет для купівлі"), x, top + 285, WHITE);
+    private void renderShop(
+            GuiGraphics graphics,
+            int top,
+            int x
+    ) {
         graphics.drawString(
                 font,
-                Component.literal("Баланс золота буде синхронізовано окремо.")
-                        .withStyle(ChatFormatting.GOLD),
+                Component.literal("Обери предмет для купівлі"),
+                x, top + 285, WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "Баланс золота буде синхронізовано окремо."
+                ).withStyle(ChatFormatting.GOLD),
                 x, top + 306, GOLD
+        );
+    }
+
+    private void renderSkills(
+            GuiGraphics graphics,
+            int top,
+            int x
+    ) {
+        graphics.drawString(
+                font,
+                Component.literal("НАВИЧКИ ФЕЙТА")
+                        .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                x, top + 112, GOLD
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal("1. Обжерливість (Gluttony)")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE),
+                x, top + 139, PURPLE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "Отримання характеристик і навичок"
+                ),
+                x, top + 155, WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "переможених супротивників."
+                ),
+                x, top + 168, WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal("2. Посилення голоду (Hunger Boost)")
+                        .withStyle(ChatFormatting.RED),
+                x, top + 197, RED
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "Тимчасове посилення Обжерливості."
+                ),
+                x, top + 213, WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal("3. Телепатія (Telepathy)")
+                        .withStyle(ChatFormatting.AQUA),
+                x, top + 242, BLUE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "Спілкування Фейта з Жадібністю."
+                ),
+                x, top + 258, WHITE
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(
+                        "Опис навичок; механіки ще розробляються."
+                ).withStyle(ChatFormatting.GRAY),
+                x, top + 292, MUTED
         );
     }
 
@@ -266,13 +458,17 @@ public class StatusScreen extends Screen {
         graphics.drawCenteredString(
                 font,
                 Component.literal(title).withStyle(ChatFormatting.GOLD),
-                width / 2, top + 125, GOLD
+                width / 2,
+                top + 125,
+                GOLD
         );
 
         graphics.drawCenteredString(
                 font,
                 Component.literal(message).withStyle(ChatFormatting.GRAY),
-                width / 2, top + 155, MUTED
+                width / 2,
+                top + 155,
+                MUTED
         );
     }
 
