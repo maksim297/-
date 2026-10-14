@@ -1,5 +1,6 @@
 package com.berserkofgluttony;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -19,27 +20,23 @@ public class GluttonyEvents {
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity target = event.getEntity();
 
-        if (!(target.level() instanceof
-                net.minecraft.server.level.ServerLevel)) {
+        if (!(target.level()
+                instanceof net.minecraft.server.level.ServerLevel)) {
             return;
         }
 
-        if (!(event.getSource().getEntity() instanceof ServerPlayer player)) {
+        if (!(event.getSource().getEntity()
+                instanceof ServerPlayer player)) {
             return;
         }
 
-        if (target == player) {
-            return;
-        }
-
-        if (target instanceof ServerPlayer) {
+        if (target == player || target instanceof ServerPlayer) {
             return;
         }
 
         RpgStats stats =
                 player.getData(ModAttachments.RPG_STATS.get());
 
-        // Досвід залежить від максимальної кількості здоров'я моба.
         int experience = Math.max(
                 5,
                 Math.min(50, (int) Math.ceil(target.getMaxHealth()))
@@ -52,8 +49,11 @@ public class GluttonyEvents {
                 stats
         );
 
+        // Синхронізуємо актуальні характеристики, рівень і досвід.
+        ModNetwork.syncStats(player);
+
         player.displayClientMessage(
-                net.minecraft.network.chat.Component.literal(
+                Component.literal(
                         "Обжерливість: +" + experience
                                 + " досвіду | Рівень "
                                 + stats.getGluttonyLevel()
