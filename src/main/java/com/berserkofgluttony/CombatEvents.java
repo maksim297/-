@@ -1,6 +1,8 @@
+
 package com.berserkofgluttony;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -23,17 +25,24 @@ public final class CombatEvents {
             return;
         }
 
+        LivingEntity target = event.getEntity();
+
         RpgStats stats = player.getData(
                 ModAttachments.RPG_STATS.get()
         );
 
-        float bonus = (float)
+        float damage = event.getNewDamage();
+
+        // Бонус сили.
+        damage += (float)
                 StatEffects.getStrengthDamageBonus(stats);
 
-        if (bonus > 0.0F) {
-            event.setNewDamage(
-                    event.getNewDamage() + bonus
-            );
-        }
+        // Бонус звання: +10% проти відповідного моба.
+        damage *= StatEffects.getBattleRankDamageMultiplier(
+                stats,
+                target
+        );
+
+        event.setNewDamage(damage);
     }
 }
