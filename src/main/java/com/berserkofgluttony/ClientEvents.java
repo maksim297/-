@@ -24,7 +24,7 @@ public final class ClientEvents {
         while (ModKeyMappings.OPEN_STATUS.consumeClick()) {
             if (minecraft.player != null
                     && minecraft.screen == null) {
-                minecraft.setScreen(new StatusScreen());
+                minecraft.setScreen(new StatusScreen(minecraft.player));
             }
         }
     }
