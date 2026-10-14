@@ -87,7 +87,9 @@ public final class ModNetwork {
             int agility,
             int intelligence,
             int availablePoints,
-            boolean autoPointsAllocated
+            boolean autoPointsAllocated,
+            int gluttonyExperience,
+            int gluttonyLevel
     ) implements CustomPacketPayload {
 
         public static final Type<StatsSyncPayload> TYPE =
@@ -96,8 +98,7 @@ public final class ModNetwork {
 
         public static final StreamCodec<RegistryFriendlyByteBuf,
                 StatsSyncPayload> STREAM_CODEC =
-                new StreamCodec<RegistryFriendlyByteBuf,
-                        StatsSyncPayload>() {
+                new StreamCodec<>() {
 
                     @Override
                     public StatsSyncPayload decode(
@@ -109,7 +110,9 @@ public final class ModNetwork {
                                 buf.readVarInt(),
                                 buf.readVarInt(),
                                 buf.readVarInt(),
-                                buf.readBoolean()
+                                buf.readBoolean(),
+                                buf.readVarInt(),
+                                buf.readVarInt()
                         );
                     }
 
@@ -123,8 +126,9 @@ public final class ModNetwork {
                         buf.writeVarInt(payload.agility());
                         buf.writeVarInt(payload.intelligence());
                         buf.writeVarInt(payload.availablePoints());
-                        buf.writeBoolean(
-                                payload.autoPointsAllocated());
+                        buf.writeBoolean(payload.autoPointsAllocated());
+                        buf.writeVarInt(payload.gluttonyExperience());
+                        buf.writeVarInt(payload.gluttonyLevel());
                     }
                 };
 
@@ -141,7 +145,9 @@ public final class ModNetwork {
                     stats.getAgility(),
                     stats.getIntelligence(),
                     stats.getAvailablePoints(),
-                    stats.isAutoPointsAllocated()
+                    stats.isAutoPointsAllocated(),
+                    stats.getGluttonyExperience(),
+                    stats.getGluttonyLevel()
             );
         }
 
@@ -153,7 +159,9 @@ public final class ModNetwork {
                     agility,
                     intelligence,
                     availablePoints,
-                    autoPointsAllocated
+                    autoPointsAllocated,
+                    gluttonyExperience,
+                    gluttonyLevel
             );
         }
     }
@@ -212,12 +220,9 @@ public final class ModNetwork {
                                         );
 
                                 String message = switch (result) {
-                                    case SUCCESS ->
-                                            "Покупку виконано!";
-                                    case ITEM_NOT_FOUND ->
-                                            "Товар не знайдено.";
-                                    case NOT_ENOUGH_GOLD ->
-                                            "Недостатньо золота!";
+                                    case SUCCESS -> "Покупку виконано!";
+                                    case ITEM_NOT_FOUND -> "Товар не знайдено.";
+                                    case NOT_ENOUGH_GOLD -> "Недостатньо золота!";
                                     case INVENTORY_FULL ->
                                             "Не вдалося додати товар до інвентарю. Золото повернуто.";
                                     case ITEM_NOT_IMPLEMENTED ->
