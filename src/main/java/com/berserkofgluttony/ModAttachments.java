@@ -32,7 +32,7 @@ public final class ModAttachments {
                     "player_gold",
                     () -> AttachmentType.<PlayerGold>builder(PlayerGold::new)
                             .serialize(PlayerGold.CODEC)
-)                           .copyOnDeath()
+                            .copyOnDeath()
                             .build()
             );
 }
