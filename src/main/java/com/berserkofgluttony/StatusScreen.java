@@ -1,3 +1,4 @@
+
 package com.berserkofgluttony;
 
 import net.minecraft.ChatFormatting;
@@ -16,7 +17,14 @@ public class StatusScreen extends Screen {
     private static final int PANEL_HEIGHT = 360;
 
     private enum Page {
-        STATUS, SHOP, GROUP, QUESTS, CRAFTING, REWARDS, SKILLS
+        STATUS,
+        SHOP,
+        GROUP,
+        QUESTS,
+        CRAFTING,
+        REWARDS,
+        SKILLS,
+        BATTLE_RANKS
     }
 
     private Page currentPage = Page.STATUS;
@@ -53,6 +61,7 @@ public class StatusScreen extends Screen {
         addTab("Нагороди", Page.REWARDS, left + 230, top + 36, 100);
 
         addTab("Навички", Page.SKILLS, left + 10, top + 62, 100);
+        addTab("Звання", Page.BATTLE_RANKS, left + 120, top + 62, 100);
 
         if (currentPage == Page.STATUS) {
             addRenderableWidget(
@@ -75,9 +84,18 @@ public class StatusScreen extends Screen {
         }
 
         if (currentPage == Page.SHOP) {
-            addCategoryButton(ShopCategory.WEAPONS, left + 12, top + 105);
-            addCategoryButton(ShopCategory.FOOD, left + 122, top + 105);
-            addCategoryButton(ShopCategory.POTIONS, left + 232, top + 105);
+            addCategoryButton(
+                    ShopCategory.WEAPONS,
+                    left + 12, top + 105
+            );
+            addCategoryButton(
+                    ShopCategory.FOOD,
+                    left + 122, top + 105
+            );
+            addCategoryButton(
+                    ShopCategory.POTIONS,
+                    left + 232, top + 105
+            );
 
             int itemY = top + 140;
 
@@ -206,6 +224,7 @@ public class StatusScreen extends Screen {
                     "Система нагород буде додана окремо."
             );
             case SKILLS -> renderSkills(graphics, top, x);
+            case BATTLE_RANKS -> renderBattleRanks(graphics, top, x);
         }
 
         super.render(graphics, mouseX, mouseY, partialTick);
@@ -385,9 +404,8 @@ public class StatusScreen extends Screen {
 
         graphics.drawString(
                 font,
-                Component.literal(
-                        "1. Обжерливість (Gluttony)"
-                ).withStyle(ChatFormatting.LIGHT_PURPLE),
+                Component.literal("1. Обжерливість (Gluttony)")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE),
                 x, top + 130, PURPLE
         );
 
@@ -446,9 +464,8 @@ public class StatusScreen extends Screen {
 
         graphics.drawString(
                 font,
-                Component.literal(
-                        "2. Посилення голоду (Hunger Boost)"
-                ).withStyle(ChatFormatting.RED),
+                Component.literal("2. Посилення голоду (Hunger Boost)")
+                        .withStyle(ChatFormatting.RED),
                 x, top + 201, RED
         );
 
@@ -462,9 +479,8 @@ public class StatusScreen extends Screen {
 
         graphics.drawString(
                 font,
-                Component.literal(
-                        "3. Телепатія (Telepathy)"
-                ).withStyle(ChatFormatting.AQUA),
+                Component.literal("3. Телепатія (Telepathy)")
+                        .withStyle(ChatFormatting.AQUA),
                 x, top + 244, BLUE
         );
 
@@ -482,6 +498,100 @@ public class StatusScreen extends Screen {
                         "Інші ефекти навичок ще розробляються."
                 ).withStyle(ChatFormatting.GRAY),
                 x, top + 292, MUTED
+        );
+    }
+
+    private void renderBattleRanks(
+            GuiGraphics graphics,
+            int top,
+            int x
+    ) {
+        graphics.drawString(
+                font,
+                Component.literal("ТВОЇ БОЙОВІ ЗВАННЯ")
+                        .withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD),
+                x, top + 105, GOLD
+        );
+
+        drawBattleRank(
+                graphics, x, top + 126,
+                "Вбивця слизу",
+                stats.hasSlimeKillerRank(),
+                "Слиз: +10% шкоди"
+        );
+
+        drawBattleRank(
+                graphics, x, top + 157,
+                "Вбивця зомбі",
+                stats.hasZombieKillerRank(),
+                "Зомбі: +10% шкоди"
+        );
+
+        drawBattleRank(
+                graphics, x, top + 188,
+                "Вбивця Ендер",
+                stats.hasEnderKillerRank(),
+                "Ендермен: +10% шкоди"
+        );
+
+        drawBattleRank(
+                graphics, x, top + 219,
+                "Вбивця Кріпера",
+                stats.hasCreeperKillerRank(),
+                "Кріпер: +10% шкоди"
+        );
+
+        drawBattleRank(
+                graphics, x, top + 250,
+                "Вбивця павуків",
+                stats.hasSpiderKillerRank(),
+                "Павуки: +10% шкоди"
+        );
+
+        drawBattleRank(
+                graphics, x, top + 281,
+                "Вбивця скелетів",
+                stats.hasSkeletonKillerRank(),
+                "Скелети: +10% шкоди"
+        );
+    }
+
+    private void drawBattleRank(
+            GuiGraphics graphics,
+            int x,
+            int y,
+            String name,
+            boolean unlocked,
+            String bonus
+    ) {
+        int statusColor = unlocked ? GREEN : RED;
+
+        String status = unlocked
+                ? "ВІДКРИТО"
+                : "ЗАБЛОКОВАНО";
+
+        graphics.drawString(
+                font,
+                Component.literal(name)
+                        .withStyle(unlocked
+                                ? ChatFormatting.GOLD
+                                : ChatFormatting.GRAY),
+                x, y, unlocked ? GOLD : MUTED
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(status)
+                        .withStyle(unlocked
+                                ? ChatFormatting.GREEN
+                                : ChatFormatting.RED),
+                x + 190, y, statusColor
+        );
+
+        graphics.drawString(
+                font,
+                Component.literal(bonus),
+                x + 8, y + 12, WHITE
         );
     }
 
@@ -509,3 +619,4 @@ public class StatusScreen extends Screen {
         return false;
     }
 }
+            
