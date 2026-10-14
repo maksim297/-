@@ -11,6 +11,8 @@ public class RpgStats {
     public static final int BASE_STAT = 10;
     public static final int POINTS_PER_LEVEL = 5;
 
+    public static final int GLUTTONY_BASE_XP_REQUIRED = 100;
+
     public static final Codec<RpgStats> CODEC =
             RecordCodecBuilder.create(instance ->
                     instance.group(
@@ -40,7 +42,15 @@ public class RpgStats {
 
                             Codec.BOOL.fieldOf("auto_points_allocated")
                                     .orElse(true)
-                                    .forGetter(RpgStats::isAutoPointsAllocated)
+                                    .forGetter(RpgStats::isAutoPointsAllocated),
+
+                            Codec.INT.fieldOf("gluttony_experience")
+                                    .orElse(0)
+                                    .forGetter(RpgStats::getGluttonyExperience),
+
+                            Codec.INT.fieldOf("gluttony_level")
+                                    .orElse(1)
+                                    .forGetter(RpgStats::getGluttonyLevel)
                     ).apply(instance, RpgStats::new)
             );
 
@@ -56,6 +66,9 @@ public class RpgStats {
     private int availablePoints;
     private boolean autoPointsAllocated;
 
+    private int gluttonyExperience;
+    private int gluttonyLevel;
+
     public RpgStats() {
         this(
                 BASE_STAT,
@@ -64,7 +77,32 @@ public class RpgStats {
                 BASE_STAT,
                 BASE_STAT,
                 0,
-                true
+                true,
+                0,
+                1
+        );
+    }
+
+    // Залишаємо старий конструктор для сумісності з наявним кодом.
+    public RpgStats(
+            int strength,
+            int endurance,
+            int perception,
+            int agility,
+            int intelligence,
+            int availablePoints,
+            boolean autoPointsAllocated
+    ) {
+        this(
+                strength,
+                endurance,
+                perception,
+                agility,
+                intelligence,
+                availablePoints,
+                autoPointsAllocated,
+                0,
+                1
         );
     }
 
@@ -75,7 +113,9 @@ public class RpgStats {
             int agility,
             int intelligence,
             int availablePoints,
-            boolean autoPointsAllocated
+            boolean autoPointsAllocated,
+            int gluttonyExperience,
+            int gluttonyLevel
     ) {
         this.strength = Math.max(0, strength);
         this.endurance = Math.max(0, endurance);
@@ -84,6 +124,9 @@ public class RpgStats {
         this.intelligence = Math.max(0, intelligence);
         this.availablePoints = Math.max(0, availablePoints);
         this.autoPointsAllocated = autoPointsAllocated;
+
+        this.gluttonyExperience = Math.max(0, gluttonyExperience);
+        this.gluttonyLevel = Math.max(1, gluttonyLevel);
     }
 
     public int getStrength() {
@@ -112,6 +155,32 @@ public class RpgStats {
 
     public boolean isAutoPointsAllocated() {
         return autoPointsAllocated;
+    }
+
+    public int getGluttonyExperience() {
+        return gluttonyExperience;
+    }
+
+    public int getGluttonyLevel() {
+        return gluttonyLevel;
+    }
+
+    public int getGluttonyExperienceRequired() {
+        return GLUTTONY_BASE_XP_REQUIRED
+                + (gluttonyLevel - 1) * 50;
+    }
+
+    public void addGluttonyExperience(int amount) {
+        if (amount <= 0) {
+            return;
+        }
+
+        gluttonyExperience += amount;
+
+        while (gluttonyExperience >= getGluttonyExperienceRequired()) {
+            gluttonyExperience -= getGluttonyExperienceRequired();
+            gluttonyLevel++;
+        }
     }
 
     public void setAutoPointsAllocated(boolean enabled) {
